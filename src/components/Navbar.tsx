@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Menu, X, User, LogOut, Eye, Book } from "lucide-react";
+import { ShoppingCart, Menu, X, User, LogOut, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const Navbar = () => {
@@ -27,7 +27,6 @@ const Navbar = () => {
   const navigationLinks = [
     { path: "/", label: "Home" },
     { path: "/shop", label: "Shop" },
-    { path: "/wiki", label: "Learn", icon: Book },
     { path: "/image-analysis", label: "AI Vision", icon: Eye },
     { path: "/about", label: "About" },
     { path: "/contact", label: "Contact" },
