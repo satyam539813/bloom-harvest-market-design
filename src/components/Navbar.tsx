@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
@@ -33,29 +33,34 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
+    <nav className="bg-white/95 backdrop-blur-md shadow-lg border-b border-green-100 sticky top-0 z-50">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="bg-farm-green text-white p-2 rounded-lg">
-              <span className="font-bold text-lg">F</span>
+        <div className="flex justify-between items-center h-18">
+          {/* Enhanced Logo */}
+          <Link to="/" className="flex items-center space-x-3 group">
+            <div className="bg-gradient-to-br from-green-600 to-green-700 text-white p-3 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+              <span className="font-bold text-xl">🌱</span>
             </div>
-            <span className="text-xl font-bold text-farm-green-dark">FarmFresh</span>
+            <div className="flex flex-col">
+              <span className="text-2xl font-bold bg-gradient-to-r from-green-700 to-green-600 bg-clip-text text-transparent">
+                FarmFresh
+              </span>
+              <span className="text-xs text-green-600 font-medium -mt-1">Organic & Fresh</span>
+            </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          {/* Enhanced Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-2">
             {navigationLinks.map((link) => {
               const IconComponent = link.icon;
               return (
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`flex items-center space-x-1 text-sm font-medium transition-colors hover:text-farm-green ${
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-green-50 ${
                     isActive(link.path)
-                      ? "text-farm-green border-b-2 border-farm-green pb-1"
-                      : "text-gray-700"
+                      ? "text-white bg-gradient-to-r from-green-600 to-green-700 shadow-md"
+                      : "text-gray-700 hover:text-green-700"
                   }`}
                 >
                   {IconComponent && <IconComponent className="h-4 w-4" />}
@@ -65,12 +70,12 @@ const Navbar = () => {
             })}
           </div>
 
-          {/* Right side buttons */}
-          <div className="flex items-center space-x-4">
+          {/* Enhanced Right side buttons */}
+          <div className="flex items-center space-x-3">
             {user ? (
               <>
                 <Link to="/orders" className="hidden md:flex">
-                  <Button variant="ghost" size="sm" className="text-gray-700 hover:text-farm-green">
+                  <Button variant="ghost" size="sm" className="text-gray-700 hover:text-green-700 hover:bg-green-50 rounded-lg transition-all duration-300">
                     <User className="h-4 w-4 mr-2" />
                     Orders
                   </Button>
@@ -79,7 +84,7 @@ const Navbar = () => {
                   variant="ghost"
                   size="sm"
                   onClick={handleSignOut}
-                  className="hidden md:flex text-gray-700 hover:text-farm-green"
+                  className="hidden md:flex text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
@@ -87,30 +92,34 @@ const Navbar = () => {
               </>
             ) : (
               <Link to="/auth" className="hidden md:flex">
-                <Button variant="ghost" size="sm" className="text-gray-700 hover:text-farm-green">
+                <Button variant="ghost" size="sm" className="text-gray-700 hover:text-green-700 hover:bg-green-50 rounded-lg transition-all duration-300">
                   <User className="h-4 w-4 mr-2" />
                   Sign In
                 </Button>
               </Link>
             )}
 
-            {/* Cart button */}
+            {/* Enhanced Cart button */}
             <Link to="/shop" className="relative">
-              <Button variant="ghost" size="sm" className="text-gray-700 hover:text-farm-green">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-gray-700 hover:text-green-700 hover:bg-green-50 rounded-lg transition-all duration-300 p-3"
+              >
                 <ShoppingCart className="h-5 w-5" />
                 {itemCount > 0 && (
-                  <Badge className="absolute -top-2 -right-2 bg-farm-green text-white text-xs px-1.5 py-0.5 rounded-full min-w-[1.25rem] h-5 flex items-center justify-center">
+                  <Badge className="absolute -top-1 -right-1 bg-gradient-to-r from-green-600 to-green-700 text-white text-xs px-2 py-1 rounded-full min-w-[1.5rem] h-6 flex items-center justify-center shadow-lg animate-pulse">
                     {itemCount}
                   </Badge>
                 )}
               </Button>
             </Link>
 
-            {/* Mobile menu button */}
+            {/* Enhanced Mobile menu button */}
             <Button
               variant="ghost"
               size="sm"
-              className="md:hidden"
+              className="md:hidden text-gray-700 hover:text-green-700 hover:bg-green-50 rounded-lg transition-all duration-300"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -118,7 +127,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Enhanced Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden border-t bg-white pb-4">
             <div className="flex flex-col space-y-2 pt-4">
@@ -128,8 +137,8 @@ const Navbar = () => {
                   <Link
                     key={link.path}
                     to={link.path}
-                    className={`flex items-center space-x-2 px-4 py-2 text-sm font-medium transition-colors hover:text-farm-green hover:bg-gray-50 ${
-                      isActive(link.path) ? "text-farm-green bg-farm-green/5" : "text-gray-700"
+                    className={`flex items-center space-x-2 px-4 py-2 text-sm font-medium transition-colors hover:text-green-700 hover:bg-green-50 rounded-lg mx-2 ${
+                      isActive(link.path) ? "text-white bg-gradient-to-r from-green-600 to-green-700" : "text-gray-700"
                     }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -143,7 +152,7 @@ const Navbar = () => {
                 <>
                   <Link
                     to="/orders"
-                    className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-farm-green hover:bg-gray-50"
+                    className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-green-700 hover:bg-green-50 rounded-lg mx-2"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <User className="h-4 w-4" />
@@ -154,7 +163,7 @@ const Navbar = () => {
                       handleSignOut();
                       setIsMenuOpen(false);
                     }}
-                    className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-farm-green hover:bg-gray-50 w-full text-left"
+                    className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg mx-2 w-full text-left"
                   >
                     <LogOut className="h-4 w-4" />
                     <span>Sign Out</span>
@@ -163,7 +172,7 @@ const Navbar = () => {
               ) : (
                 <Link
                   to="/auth"
-                  className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-farm-green hover:bg-gray-50"
+                  className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-green-700 hover:bg-green-50 rounded-lg mx-2"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <User className="h-4 w-4" />
