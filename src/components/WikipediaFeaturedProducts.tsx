@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader, Star, ExternalLink, Sparkles, Apple, Wheat } from "lucide-react";
+import { Loader, Star, Heart, Eye, ShoppingCart } from "lucide-react";
+import { useToast } from '@/hooks/use-toast';
+import { useCart } from '@/contexts/CartContext';
+import { useFavorites } from '@/contexts/FavoritesContext';
 
 interface WikipediaPage {
   title: string;
@@ -19,6 +22,10 @@ const WikipediaFeaturedProducts = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
+  const { toast } = useToast();
+  const { addToCart } = useCart();
+  const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
 
   const fruitsList = [
     'apple', 'banana', 'orange', 'strawberry', 'mango', 'grape', 'pineapple', 
@@ -119,6 +126,38 @@ const WikipediaFeaturedProducts = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [loadMoreItems, hasMore, loading]);
 
+  const handleAddToCart = (item: WikipediaPage) => {
+    const product = {
+      id: Math.abs(item.title.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0)),
+      name: item.title,
+      price: parseFloat((Math.random() * 5 + 2).toFixed(2)),
+      image_url: item.thumbnail?.source || "/placeholder.svg",
+      unit: "lb"
+    };
+    addToCart(product);
+    toast({
+      title: "Added to cart",
+      description: `${item.title} has been added to your cart.`,
+    });
+  };
+
+  const handleToggleFavorite = (item: WikipediaPage) => {
+    const product = {
+      id: Math.abs(item.title.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0)),
+      name: item.title,
+      price: parseFloat((Math.random() * 5 + 2).toFixed(2)),
+      image_url: item.thumbnail?.source || "/placeholder.svg",
+      unit: "lb"
+    };
+    
+    const productId = product.id;
+    if (isFavorite(productId)) {
+      removeFromFavorites(productId);
+    } else {
+      addToFavorites(product);
+    }
+  };
+
   const allItems = [...fruits, ...grains].sort(() => Math.random() - 0.5); // Shuffle items
 
   return (
@@ -132,72 +171,111 @@ const WikipediaFeaturedProducts = () => {
       <div className="container mx-auto px-4 relative z-10">
         {/* Enhanced Header */}
         <div className="text-center mb-16 space-y-6">
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 animate-pulse">
-              <Apple className="h-8 w-8 text-primary" />
-            </div>
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accent/10 animate-pulse">
-              <Wheat className="h-8 w-8 text-accent" />
-            </div>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4 animate-pulse">
+            <Star className="h-8 w-8 text-primary" />
           </div>
           <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-            Fresh Fruits & Wholesome Grains
+            Featured Products
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Discover the nutritional benefits and fascinating facts about nature's finest fruits and grains. 
-            Learn about each product's origin, benefits, and uses while you browse our selection.
+            Discover our hand-picked selection of premium, organic produce delivered straight from local farms to your doorstep. 
+            Each product is carefully selected for quality, freshness, and exceptional taste.
           </p>
         </div>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
           {allItems.map((item, index) => {
             const isFruit = fruits.includes(item);
-            const category = isFruit ? 'fruit' : 'grain';
-            const categoryIcon = isFruit ? Apple : Wheat;
-            const CategoryIcon = categoryIcon;
+            const category = isFruit ? 'Fruits' : 'Grains';
+            const productId = Math.abs(item.title.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0));
+            const price = parseFloat((Math.random() * 5 + 2).toFixed(2));
             
             return (
               <Card 
                 key={`${item.title}-${index}`}
-                className="group overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 border-0 bg-card/80 backdrop-blur-sm hover:scale-[1.02] animate-fade-in"
+                className="group overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 border-0 bg-white/80 backdrop-blur-sm hover:scale-[1.02] animate-fade-in"
                 style={{ animationDelay: `${index * 100}ms` }}
+                onMouseEnter={() => setHoveredProduct(item.title)}
+                onMouseLeave={() => setHoveredProduct(null)}
               >
-                <CardHeader className="pb-4">
-                  <div className="flex items-start gap-4">
-                    {item.thumbnail && (
-                      <img
-                        src={item.thumbnail.source}
-                        alt={item.title}
-                        className="w-16 h-16 object-cover rounded-lg group-hover:scale-110 transition-transform duration-300"
-                      />
-                    )}
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Badge variant={isFruit ? "default" : "secondary"} className="text-xs">
-                          <CategoryIcon className="h-3 w-3 mr-1" />
-                          {category}
-                        </Badge>
-                        {Math.random() > 0.5 && (
-                          <Badge variant="outline" className="text-xs">
-                            <Sparkles className="h-3 w-3 mr-1" />
-                            Organic
-                          </Badge>
-                        )}
-                      </div>
-                      <CardTitle className="text-lg group-hover:text-primary transition-colors line-clamp-2">
-                        {item.title}
-                      </CardTitle>
+                <div className="relative aspect-square overflow-hidden">
+                  <img 
+                    src={item.thumbnail?.source || "/placeholder.svg"} 
+                    alt={item.title} 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  
+                  {/* Overlay with quick actions */}
+                  <div className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${
+                    hoveredProduct === item.title ? 'opacity-100' : 'opacity-0'
+                  }`}>
+                    <div className="absolute top-4 right-4 flex flex-col gap-2">
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className={`w-10 h-10 rounded-full shadow-lg transition-all duration-300 ${
+                          isFavorite(productId) 
+                            ? 'bg-red-500 hover:bg-red-600 text-white' 
+                            : 'bg-white/90 hover:bg-white text-gray-700'
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleFavorite(item);
+                        }}
+                      >
+                        <Heart className={`h-4 w-4 transition-all duration-300 ${
+                          isFavorite(productId) ? 'fill-current scale-110' : ''
+                        }`} />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className="w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-lg"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
-                </CardHeader>
+                  
+                  {/* Badges */}
+                  <div className="absolute top-4 left-4 flex flex-col gap-2">
+                    <Badge className="bg-primary text-white font-semibold shadow-lg">
+                      Organic
+                    </Badge>
+                    {Math.random() > 0.7 && (
+                      <Badge className="bg-red-500 text-white font-semibold shadow-lg">
+                        Sale
+                      </Badge>
+                    )}
+                  </div>
+                </div>
                 
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
+                <CardContent className="p-6 space-y-4">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-primary uppercase tracking-wide">
+                      {category}
+                    </p>
+                    <h3 className="font-bold text-lg text-gray-900 line-clamp-2 group-hover:text-primary transition-colors">
+                      {item.title}
+                    </h3>
+                  </div>
+                  
+                  <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
                     {item.extract}
                   </p>
                   
                   <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl font-bold text-primary">
+                          ${price.toFixed(2)}
+                        </span>
+                        <span className="text-sm text-gray-500">/ lb</span>
+                      </div>
+                    </div>
+                    
+                    {/* Rating stars */}
                     <div className="flex items-center gap-1">
                       {[...Array(5)].map((_, i) => (
                         <Star 
@@ -205,32 +283,17 @@ const WikipediaFeaturedProducts = () => {
                           className="h-4 w-4 fill-yellow-400 text-yellow-400" 
                         />
                       ))}
-                      <span className="text-xs text-muted-foreground ml-1">(4.8)</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-lg font-bold text-primary">
-                        ${(Math.random() * 5 + 2).toFixed(2)}
-                      </span>
-                      <span className="text-sm text-muted-foreground ml-1">/ lb</span>
+                      <span className="text-xs text-gray-500 ml-1">(4.8)</span>
                     </div>
                   </div>
                   
-                  <div className="flex gap-2">
-                    <Button 
-                      className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 hover:shadow-lg"
-                      size="sm"
-                    >
-                      Add to Cart
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-                      onClick={() => window.open(item.pageurl, '_blank')}
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <Button 
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl py-6 font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-primary/30 group"
+                    onClick={() => handleAddToCart(item)}
+                  >
+                    <ShoppingCart className="h-5 w-5 mr-2 transition-transform group-hover:scale-110" />
+                    Add to Cart
+                  </Button>
                 </CardContent>
               </Card>
             );
@@ -245,25 +308,24 @@ const WikipediaFeaturedProducts = () => {
           </div>
         )}
 
-        {/* Load more button (fallback for manual loading) */}
-        {!loading && hasMore && (
-          <div className="text-center">
-            <Button
-              onClick={loadMoreItems}
+        {/* Enhanced CTA Section */}
+        <div className="text-center mt-16">
+          <div className="inline-flex flex-col items-center space-y-4 p-8 bg-white/60 backdrop-blur-sm rounded-3xl border border-border/50 shadow-xl">
+            <h3 className="text-2xl font-bold text-primary">
+              Discover More Fresh Products
+            </h3>
+            <p className="text-gray-600 max-w-md">
+              Explore our complete collection of farm-fresh produce and artisanal goods
+            </p>
+            <Button 
               className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground rounded-full px-8 py-6 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              onClick={() => window.location.href = '/shop'}
             >
-              Load More Fresh Produce
-              <Sparkles className="ml-2 h-5 w-5" />
+              View All Products
+              <Star className="ml-2 h-5 w-5" />
             </Button>
           </div>
-        )}
-
-        {/* End message */}
-        {!hasMore && !loading && (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">You've seen all our amazing fresh produce!</p>
-          </div>
-        )}
+        </div>
       </div>
     </section>
   );
