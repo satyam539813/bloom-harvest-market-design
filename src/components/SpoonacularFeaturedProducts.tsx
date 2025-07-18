@@ -40,7 +40,7 @@ const SpoonacularFeaturedProducts = () => {
   const { addToCart } = useCart();
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
 
-  const SPOONACULAR_API_KEY = 'demo'; // Using demo key - replace with actual key for production
+  const SPOONACULAR_API_KEY = '2cbab2f643934b3cb54ffd43eb293073'; // Your Spoonacular API key
   const ITEMS_PER_PAGE = 12;
 
   const queries = ['fruits', 'vegetables', 'grains', 'berries', 'citrus', 'herbs'];
@@ -51,12 +51,64 @@ const SpoonacularFeaturedProducts = () => {
     setLoading(true);
     
     try {
-      // Using a mock API response since Spoonacular requires a paid API key
-      // In production, replace this with actual Spoonacular API call
-      const mockData = generateMockData(query, currentOffset, ITEMS_PER_PAGE);
+      // Real Spoonacular API call
+      const response = await fetch(
+        `https://api.spoonacular.com/food/ingredients/search?query=${query}&number=${ITEMS_PER_PAGE}&offset=${currentOffset}&apiKey=${SPOONACULAR_API_KEY}`
+      );
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 800));
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+      
+      const data: SpoonacularSearchResponse = await response.json();
+      
+      // Fetch additional details for each ingredient to get better images and nutrition
+      const detailedIngredients = await Promise.all(
+        data.results.map(async (ingredient) => {
+          try {
+            const detailResponse = await fetch(
+              `https://api.spoonacular.com/food/ingredients/${ingredient.id}/information?amount=100&unit=grams&apiKey=${SPOONACULAR_API_KEY}`
+            );
+            
+            if (detailResponse.ok) {
+              const detailData = await detailResponse.json();
+              return {
+                ...ingredient,
+                image: `https://spoonacular.com/cdn/ingredients_500x500/${ingredient.image}`,
+                nutrition: detailData.nutrition,
+                aisle: detailData.aisle,
+                categoryPath: detailData.categoryPath || [detailData.aisle]
+              };
+            }
+            return {
+              ...ingredient,
+              image: `https://spoonacular.com/cdn/ingredients_500x500/${ingredient.image}`
+            };
+          } catch (error) {
+            console.warn(`Failed to fetch details for ${ingredient.name}:`, error);
+            return {
+              ...ingredient,
+              image: `https://spoonacular.com/cdn/ingredients_500x500/${ingredient.image}`
+            };
+          }
+        })
+      );
+      
+      if (reset) {
+        setIngredients(detailedIngredients);
+      } else {
+        setIngredients(prev => [...prev, ...detailedIngredients]);
+      }
+      
+      setHasMore(data.results.length === ITEMS_PER_PAGE);
+      setOffset(currentOffset + ITEMS_PER_PAGE);
+      
+    } catch (error) {
+      console.error('Error fetching ingredients:', error);
+      
+      // Fallback to mock data if API fails
+      console.log('Falling back to mock data...');
+      const mockData = generateMockData(query, currentOffset, ITEMS_PER_PAGE);
       
       if (reset) {
         setIngredients(mockData.results);
@@ -67,12 +119,9 @@ const SpoonacularFeaturedProducts = () => {
       setHasMore(mockData.results.length === ITEMS_PER_PAGE);
       setOffset(currentOffset + ITEMS_PER_PAGE);
       
-    } catch (error) {
-      console.error('Error fetching ingredients:', error);
       toast({
-        title: "Error loading products",
-        description: "Failed to load fresh produce. Please try again.",
-        variant: "destructive"
+        title: "Using sample data",
+        description: "Showing sample products. API connection may be limited.",
       });
     } finally {
       setLoading(false);
@@ -286,7 +335,15 @@ const SpoonacularFeaturedProducts = () => {
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     onError={(e) => {
                       // Fallback to a placeholder if image fails to load
-                      e.currentTarget.src = `https://images.unsplash.com/photo-1560472354-b33ff0c44a43?auto=format&fit=crop&w=400&q=80`;
+                      const fallbackImages = {
+                        'fruits': 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?auto=format&fit=crop&w=400&q=80',
+                        'vegetables': 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=400&q=80',
+                        'grains': 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=400&q=80',
+                        'berries': 'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?auto=format&fit=crop&w=400&q=80',
+                        'citrus': 'https://images.unsplash.com/photo-1557800636-894a64c1696f?auto=format&fit=crop&w=400&q=80',
+                        'herbs': 'https://images.unsplash.com/photo-1515586000433-45406d8e6662?auto=format&fit=crop&w=400&q=80'
+                      };
+                      e.currentTarget.src = fallbackImages[currentQuery as keyof typeof fallbackImages] || fallbackImages.fruits;
                     }}
                   />
                   
@@ -346,12 +403,14 @@ const SpoonacularFeaturedProducts = () => {
                   </div>
                   
                   <div className="text-sm text-gray-600 space-y-1">
-                    {ingredient.nutrition?.nutrients.slice(0, 2).map((nutrient, idx) => (
+                    {ingredient.nutrition?.nutrients?.slice(0, 2).map((nutrient, idx) => (
                       <div key={idx} className="flex justify-between">
                         <span>{nutrient.name}:</span>
                         <span className="font-medium">{nutrient.amount}{nutrient.unit}</span>
                       </div>
-                    ))}
+                    )) || (
+                      <div className="text-gray-500 italic">Nutritional info loading...</div>
+                    )}
                   </div>
                   
                   <div className="flex items-center justify-between">
