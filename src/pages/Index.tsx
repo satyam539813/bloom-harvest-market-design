@@ -2,7 +2,7 @@
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
-import WikipediaFeaturedProducts from '@/components/WikipediaFeaturedProducts';
+import SpoonacularFeaturedProducts from '@/components/SpoonacularFeaturedProducts';
 import Categories from '@/components/Categories';
 import FarmStory from '@/components/FarmStory';
 import Testimonials from '@/components/Testimonials';
@@ -15,7 +15,7 @@ const Index = () => {
       <Navbar />
       <main>
         <Hero />
-        <WikipediaFeaturedProducts />
+        <SpoonacularFeaturedProducts />
         <Categories />
         <FarmStory />
         <Testimonials />
