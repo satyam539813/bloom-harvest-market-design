@@ -34,7 +34,7 @@ const ProductInfoModal: React.FC<ProductInfoModalProps> = ({
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('analyze-image', {
+      const { data, error } = await supabase.functions.invoke('chatbot', {
         body: {
           prompt: `Provide detailed information about ${productName} as a ${category?.toLowerCase() || 'agricultural product'}. Include: 
           1) Nutritional benefits and health properties
@@ -52,7 +52,7 @@ const ProductInfoModal: React.FC<ProductInfoModalProps> = ({
         throw new Error(data.error);
       }
 
-      setAiInfo(data?.analysis || "Information not available at the moment.");
+      setAiInfo(data?.reply || "Information not available at the moment.");
       setHasLoadedInfo(true);
 
     } catch (error) {

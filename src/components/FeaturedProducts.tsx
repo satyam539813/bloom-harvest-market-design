@@ -4,11 +4,12 @@ import { products } from '@/data/products';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Star, Heart, Eye } from "lucide-react";
+import { ShoppingCart, Star, Heart, Info } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/hooks/use-toast';
 import { useCart } from '@/contexts/CartContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
+import ProductInfoModal from './ProductInfoModal';
 
 // Define a type for our product
 interface Product {
@@ -29,6 +30,8 @@ interface Product {
 const FeaturedProducts = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { toast } = useToast();
   const { addToCart } = useCart();
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
@@ -56,6 +59,11 @@ const FeaturedProducts = () => {
     } else {
       addToFavorites(product);
     }
+  };
+
+  const handleProductInfo = (product: Product) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
   };
 
   return (
@@ -140,8 +148,12 @@ const FeaturedProducts = () => {
                       size="icon"
                       variant="secondary"
                       className="w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-lg"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleProductInfo(product);
+                      }}
                     >
-                      <Eye className="h-4 w-4" />
+                      <Info className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -247,6 +259,16 @@ const FeaturedProducts = () => {
             </Button>
           </div>
         </div>
+
+        {/* Product Info Modal */}
+        <ProductInfoModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          productName={selectedProduct?.name || ''}
+          productImage={selectedProduct?.image || selectedProduct?.image_url}
+          productDescription={selectedProduct?.description}
+          category={selectedProduct?.category}
+        />
       </div>
     </section>
   );

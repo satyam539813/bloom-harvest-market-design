@@ -64,7 +64,7 @@ const Chatbot = () => {
     setIsTyping(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('analyze-image', {
+      const { data, error } = await supabase.functions.invoke('chatbot', {
         body: {
           prompt: `You are ${botName}, a friendly agricultural assistant. Answer this question about farming, crops, or agriculture: "${inputMessage.trim()}". Be helpful, informative, and conversational. If the question is not related to agriculture, politely redirect to farming topics.`
         }
@@ -79,7 +79,7 @@ const Chatbot = () => {
       const botResponse: ChatMessage = {
         id: `assistant-${Date.now()}`,
         role: 'assistant',
-        content: data?.analysis || "I'm sorry, I couldn't process your request right now. Please try again!",
+        content: data?.reply || "I'm sorry, I couldn't process your request right now. Please try again!",
         timestamp: new Date()
       };
 
