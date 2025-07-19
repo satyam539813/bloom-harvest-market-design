@@ -2,10 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader, Star, Heart, Eye, ShoppingCart } from "lucide-react";
+import { Loader, Star, Heart, Eye, ShoppingCart, Info } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 import { useCart } from '@/contexts/CartContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
+import ProductInfoModal from './ProductInfoModal';
 
 interface WikipediaPage {
   title: string;
@@ -23,6 +24,8 @@ const WikipediaFeaturedProducts = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<WikipediaPage | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { toast } = useToast();
   const { addToCart } = useCart();
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
@@ -158,6 +161,11 @@ const WikipediaFeaturedProducts = () => {
     }
   };
 
+  const handleProductInfo = (item: WikipediaPage) => {
+    setSelectedProduct(item);
+    setIsModalOpen(true);
+  };
+
   const allItems = [...fruits, ...grains].sort(() => Math.random() - 0.5); // Shuffle items
 
   return (
@@ -232,8 +240,12 @@ const WikipediaFeaturedProducts = () => {
                         size="icon"
                         variant="secondary"
                         className="w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-lg"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleProductInfo(item);
+                        }}
                       >
-                        <Eye className="h-4 w-4" />
+                        <Info className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -326,6 +338,16 @@ const WikipediaFeaturedProducts = () => {
             </Button>
           </div>
         </div>
+
+        {/* Product Info Modal */}
+        <ProductInfoModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          productName={selectedProduct?.title || ''}
+          productImage={selectedProduct?.thumbnail?.source}
+          productDescription={selectedProduct?.extract}
+          category={fruits.includes(selectedProduct!) ? 'Fruits' : 'Grains'}
+        />
       </div>
     </section>
   );
