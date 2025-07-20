@@ -29,16 +29,20 @@ serve(async (req) => {
 
     console.log(`Processing chatbot request with prompt: "${prompt}"`);
 
-    // Call OpenRouter API with text-only request
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    // Call OpenAI API directly
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'moonshotai/kimi-k2:free',
+        model: 'gpt-4o-mini',
         messages: [
+          {
+            role: 'system',
+            content: 'You are FarmBot, a friendly agricultural assistant for FarmFresh marketplace. Help users with farming questions, product information, and cooking tips. Keep responses concise and helpful.'
+          },
           {
             role: 'user',
             content: prompt
