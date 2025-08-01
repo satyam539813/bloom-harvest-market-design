@@ -31,15 +31,15 @@ serve(async (req) => {
     const analysisPrompt = prompt || "Analyze this agricultural image briefly: 1) Crop type, 2) Health status, 3) Growth stage, 4) Visible issues, 5) Recommendations. Be concise.";
     console.log(`Analyzing image with OpenAI Vision using prompt: "${analysisPrompt}"`);
 
-    // Call OpenRouter API with DeepSeek model
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    // Call OpenAI API with vision model
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'moonshotai/kimi-k2:free',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'user',
