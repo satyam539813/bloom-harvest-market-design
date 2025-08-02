@@ -162,7 +162,11 @@
   }
   
   .btn-secondary {
-    @apply bg-gradient-to-r from-transparent to-transparent border-2 border-farm-green text-farm-green rounded-xl px-8 py-4 font-semibold transition-all duration-300 hover:bg-gradient-to-r hover:from-farm-green hover:to-farm-green-dark hover:text-primary-foreground hover:shadow-soft;
+    @apply bg-gradient-to-r from-transparent to-transparent border-2 border-farm-green text-farm-green rounded-xl px-8 py-4 font-semibold transition-all duration-300 hover:bg-gradient-to-r hover:from-farm-green hover:to-farm-green-dark hover:text-primary-foreground;
+    
+    &:hover {
+      box-shadow: var(--shadow-soft);
+    }
   }
 }
 
