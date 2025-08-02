@@ -13,78 +13,32 @@ serve(async (req) => {
   }
 
   try {
-    console.log('=== CHATBOT FUNCTION START ===');
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+    console.log('OPENAI_API_KEY exists:', !!OPENAI_API_KEY);
     
-    // Try multiple possible environment variable names
-    let API_KEY = Deno.env.get('OPENROUTER_API_KEY') || 
-                  Deno.env.get('OPENAI_API_KEY') || 
-                  Deno.env.get('GEMINI_API_KEY');
-    
-    console.log('API_KEY found:', !!API_KEY);
-    console.log('Available env vars:', Object.keys(Deno.env.toObject()));
-    
-    if (!API_KEY) {
-      console.error('No API key found in environment variables');
-      return new Response(
-        JSON.stringify({ 
-          error: 'API key not configured. Please check your Supabase edge function secrets.',
-          debug: 'Available env vars: ' + Object.keys(Deno.env.toObject()).join(', ')
-        }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
+    if (!OPENAI_API_KEY) {
+      console.error('OPENAI_API_KEY is not set in environment variables');
+      throw new Error('OPENAI_API_KEY is not configured');
     }
 
     const { prompt } = await req.json();
     if (!prompt) {
       console.error('No prompt provided');
-      return new Response(
-        JSON.stringify({ error: 'Prompt is required' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
+      throw new Error('Prompt is required');
     }
 
     console.log(`Processing chatbot request with prompt: "${prompt}"`);
 
-    // Try OpenRouter first, fallback to OpenAI
-    let response;
-    let apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
-    let model = 'meta-llama/llama-3.1-8b-instruct:free';
-    let headers: any = {
-      'Authorization': `Bearer ${API_KEY}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': 'https://farmfresh.lovable.app',
-      'X-Title': 'FarmFresh AI Assistant',
-    };
-
-    // If it's not an OpenRouter key, try OpenAI
-    if (API_KEY.startsWith('sk-')) {
-      apiUrl = 'https://api.openai.com/v1/chat/completions';
-      model = 'gpt-4o-mini';
-      headers = {
-        'Authorization': `Bearer ${API_KEY}`,
-        'Content-Type': 'application/json',
-      };
-    }
-
-    console.log('Using API URL:', apiUrl);
-    console.log('Using model:', model);
-
-    response = await fetch(apiUrl, {
+    // Call OpenRouter API with text-only request
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
-      headers,
+      headers: {
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
-        model: model,
+        model: 'moonshotai/kimi-k2:free',
         messages: [
-          {
-            role: 'system',
-            content: 'You are FarmBot, a friendly agricultural assistant for FarmFresh marketplace. Help users with farming questions, product information, and cooking tips. Keep responses concise and helpful.'
-          },
           {
             role: 'user',
             content: prompt
@@ -95,21 +49,12 @@ serve(async (req) => {
       }),
     });
 
-    console.log('API response status:', response.status);
+    console.log('OpenAI API response status:', response.status);
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('API error:', errorData);
-      return new Response(
-        JSON.stringify({ 
-          error: `API error: ${response.status} ${response.statusText}`,
-          details: errorData
-        }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
+      console.error('OpenAI API error:', errorData);
+      throw new Error(`OpenAI API error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
     }
 
     const chatResult = await response.json();
@@ -128,10 +73,7 @@ serve(async (req) => {
     console.error('Error in chatbot function:', error.message);
     console.error('Error stack:', error.stack);
     return new Response(
-      JSON.stringify({ 
-        error: error.message || 'Failed to process chat request',
-        stack: error.stack
-      }),
+      JSON.stringify({ error: error.message || 'Failed to process chat request' }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
