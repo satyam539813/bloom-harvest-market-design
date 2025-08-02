@@ -13,12 +13,12 @@ serve(async (req) => {
   }
 
   try {
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    console.log('OPENAI_API_KEY exists:', !!OPENAI_API_KEY);
+    const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
+    console.log('OPENROUTER_API_KEY exists:', !!OPENROUTER_API_KEY);
     
-    if (!OPENAI_API_KEY) {
-      console.error('OPENAI_API_KEY is not set in environment variables');
-      throw new Error('OPENAI_API_KEY is not configured');
+    if (!OPENROUTER_API_KEY) {
+      console.error('OPENROUTER_API_KEY is not set in environment variables');
+      throw new Error('OPENROUTER_API_KEY is not configured');
     }
 
     const { prompt } = await req.json();
@@ -29,15 +29,17 @@ serve(async (req) => {
 
     console.log(`Processing chatbot request with prompt: "${prompt}"`);
 
-    // Call OpenAI API directly
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Call OpenRouter API
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://farmfresh.lovable.app',
+        'X-Title': 'FarmFresh AI Assistant',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'meta-llama/llama-3.1-8b-instruct:free',
         messages: [
           {
             role: 'system',
@@ -53,12 +55,12 @@ serve(async (req) => {
       }),
     });
 
-    console.log('OpenAI API response status:', response.status);
+    console.log('OpenRouter API response status:', response.status);
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('OpenAI API error:', errorData);
-      throw new Error(`OpenAI API error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
+      console.error('OpenRouter API error:', errorData);
+      throw new Error(`OpenRouter API error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
     }
 
     const chatResult = await response.json();
