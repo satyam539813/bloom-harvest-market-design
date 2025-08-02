@@ -13,8 +13,10 @@ serve(async (req) => {
   }
 
   try {
+    console.log('=== CHATBOT FUNCTION START ===');
     const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
     console.log('OPENROUTER_API_KEY exists:', !!OPENROUTER_API_KEY);
+    console.log('Available env vars:', Object.keys(Deno.env.toObject()));
     
     if (!OPENROUTER_API_KEY) {
       console.error('OPENROUTER_API_KEY is not set in environment variables');
