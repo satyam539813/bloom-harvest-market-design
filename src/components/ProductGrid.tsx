@@ -1,33 +1,21 @@
 
-import React, { useState } from 'react';
+import React from 'react';
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ShoppingCart } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { products } from '@/data/products';
-import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-import ProductCard from './ProductCard';
-import ProductInfoModal from './ProductInfoModal';
-import { Skeleton } from "@/components/ui/skeleton";
+import { useCart } from '@/contexts/CartContext';
 
 interface ProductGridProps {
   activeCategory: string | null;
   activeFilters: Record<string, any>;
 }
 
-interface Product {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  unit: string;
-  image?: string;
-  discount?: boolean;
-  oldPrice?: number;
-  badge?: string;
-  organic?: boolean;
-  description: string;
-}
-
 const ProductGrid = ({ activeCategory, activeFilters }: ProductGridProps) => {
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { toast } = useToast();
+  const { addToCart } = useCart();
 
   // Filter products based on selected category and filters
   const filteredProducts = products.filter(product => {
@@ -56,14 +44,16 @@ const ProductGrid = ({ activeCategory, activeFilters }: ProductGridProps) => {
     return true;
   });
 
-  const { displayedItems, isLoading, hasMore } = useInfiniteScroll({
-    data: filteredProducts,
-    itemsPerPage: 24
-  });
-
-  const handleProductInfo = (product: Product) => {
-    setSelectedProduct(product);
-    setIsModalOpen(true);
+  const handleAddToCart = async (product: any) => {
+    try {
+      await addToCart(product.id);
+      toast({
+        title: "Added to cart",
+        description: `${product.name} has been added to your cart.`,
+      });
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
   };
 
   return (
@@ -75,62 +65,58 @@ const ProductGrid = ({ activeCategory, activeFilters }: ProductGridProps) => {
         </div>
       ) : (
         <>
-          <p className="text-sm text-gray-500 mb-6">
-            {filteredProducts.length} products found
-            {displayedItems.length < filteredProducts.length && 
-              ` (showing ${displayedItems.length})`
-            }
-          </p>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {displayedItems.map((product: Product, index) => (
-              <ProductCard 
-                key={product.id}
-                product={product}
-                onProductInfo={handleProductInfo}
-                index={index}
-              />
+          <p className="text-sm text-gray-500 mb-4">{filteredProducts.length} products</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProducts.map((product) => (
+              <Card key={product.id} className="product-card card-hover">
+                <div className="relative">
+                  <img 
+                    src={product.image} 
+                    alt={product.name} 
+                    className="w-full h-[200px] object-cover"
+                  />
+                  {product.badge && (
+                    <Badge className={`absolute top-2 right-2 ${
+                      product.badge === "Sale" 
+                        ? "bg-farm-accent-red" 
+                        : "bg-farm-accent-blue"
+                    }`}>
+                      {product.badge}
+                    </Badge>
+                  )}
+                  {product.organic && (
+                    <Badge className="absolute top-2 left-2 bg-farm-green">
+                      Organic
+                    </Badge>
+                  )}
+                </div>
+                <CardContent className="pt-4 pb-2">
+                  <p className="text-sm text-farm-green">{product.category}</p>
+                  <h3 className="font-semibold text-lg mb-1 text-farm-green-dark">{product.name}</h3>
+                  <div className="flex items-center">
+                    <span className="text-xl font-bold">${product.price}</span>
+                    <span className="text-sm text-gray-500 ml-1">/ {product.unit}</span>
+                    {product.discount && (
+                      <span className="ml-2 text-sm line-through text-gray-400">
+                        ${product.oldPrice}
+                      </span>
+                    )}
+                  </div>
+                </CardContent>
+                <CardFooter className="pt-0">
+                  <Button 
+                    className="w-full bg-farm-green hover:bg-farm-green-dark"
+                    onClick={() => handleAddToCart(product)}
+                  >
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    Add to Cart
+                  </Button>
+                </CardFooter>
+              </Card>
             ))}
           </div>
-
-          {/* Loading skeleton */}
-          {isLoading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="space-y-4">
-                  <Skeleton className="aspect-square w-full rounded-lg" />
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-8 w-full" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Load more indicator */}
-          {!hasMore && displayedItems.length > 0 && (
-            <div className="text-center mt-12 py-8">
-              <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-farm-green/10 to-farm-green-light/20 rounded-full border border-farm-green/20">
-                <span className="text-farm-green font-medium">
-                  🎉 You've explored all {filteredProducts.length} products!
-                </span>
-              </div>
-            </div>
-          )}
         </>
       )}
-
-      {/* Product Info Modal */}
-      <ProductInfoModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        productName={selectedProduct?.name || ''}
-        productImage={selectedProduct?.image}
-        productDescription={selectedProduct?.description}
-        category={selectedProduct?.category}
-      />
     </div>
   );
 };

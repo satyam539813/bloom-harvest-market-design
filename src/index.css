@@ -38,20 +38,9 @@
     /* Farm Fresh colors */
     --farm-green: 142.1 76.2% 36.3%;
     --farm-green-dark: 142.1 76.2% 26.3%;
-    --farm-green-light: 142.1 40% 85%;
     --farm-accent-yellow: 43 96% 56%;
     --farm-accent-red: 360 83% 62%;
     --farm-bg-cream: 48 100% 96%;
-    
-    /* Enhanced gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--farm-green)), hsl(var(--farm-green-dark)));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--farm-green-light)) 0%, hsl(var(--background)) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--farm-green-light)) 100%);
-    
-    /* Advanced shadows */
-    --shadow-elegant: 0 20px 25px -5px hsl(var(--farm-green) / 0.1), 0 10px 10px -5px hsl(var(--farm-green) / 0.04);
-    --shadow-glow: 0 0 40px hsl(var(--farm-green) / 0.3);
-    --shadow-soft: 0 4px 6px -1px hsl(var(--farm-green) / 0.1), 0 2px 4px -1px hsl(var(--farm-green) / 0.06);
   }
  
   .dark {
@@ -86,20 +75,9 @@
     /* Farm Fresh colors - dark mode variations */
     --farm-green: 142.1 70% 45%;
     --farm-green-dark: 142.1 76.2% 36.3%;
-    --farm-green-light: 142.1 30% 25%;
     --farm-accent-yellow: 43 70% 56%;
     --farm-accent-red: 360 83% 62%;
     --farm-bg-cream: 48 30% 96%;
-    
-    /* Enhanced gradients - dark mode */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--farm-green)), hsl(var(--farm-green-dark)));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--farm-green-light)) 0%, hsl(var(--background)) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--farm-green-light)) 100%);
-    
-    /* Advanced shadows - dark mode */
-    --shadow-elegant: 0 20px 25px -5px hsl(var(--farm-green) / 0.2), 0 10px 10px -5px hsl(var(--farm-green) / 0.1);
-    --shadow-glow: 0 0 40px hsl(var(--farm-green) / 0.4);
-    --shadow-soft: 0 4px 6px -1px hsl(var(--farm-green) / 0.2), 0 2px 4px -1px hsl(var(--farm-green) / 0.1);
   }
 }
  
@@ -123,11 +101,7 @@
 
 @layer components {
   .nav-link {
-    @apply px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 hover:bg-gradient-to-r hover:from-farm-green/10 hover:to-farm-green-light/20 hover:shadow-soft;
-  }
-  
-  .nav-link-active {
-    @apply bg-gradient-to-r from-farm-green/20 to-farm-green-light/30 text-farm-green border-l-4 border-farm-green shadow-soft;
+    @apply px-3 py-2 text-sm font-medium rounded-md transition-colors hover:bg-secondary;
   }
   
   .animate-scale-in {
@@ -139,34 +113,6 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-  }
-  
-  .section-title {
-    @apply text-3xl md:text-4xl font-bold text-center mb-12 bg-gradient-to-r from-farm-green via-farm-green-dark to-farm-green bg-clip-text text-transparent;
-  }
-  
-  .card-elegant {
-    @apply bg-gradient-to-br from-card to-farm-green-light/5 border border-farm-green/10 rounded-2xl p-6 transition-all duration-500 hover:-translate-y-2;
-    
-    &:hover {
-      box-shadow: var(--shadow-elegant);
-    }
-  }
-  
-  .btn-primary {
-    @apply bg-gradient-to-r from-farm-green to-farm-green-dark text-primary-foreground rounded-xl px-8 py-4 font-semibold transition-all duration-300 hover:scale-105;
-    
-    &:hover {
-      box-shadow: var(--shadow-glow);
-    }
-  }
-  
-  .btn-secondary {
-    @apply bg-gradient-to-r from-transparent to-transparent border-2 border-farm-green text-farm-green rounded-xl px-8 py-4 font-semibold transition-all duration-300 hover:bg-gradient-to-r hover:from-farm-green hover:to-farm-green-dark hover:text-primary-foreground;
-    
-    &:hover {
-      box-shadow: var(--shadow-soft);
-    }
   }
 }
 

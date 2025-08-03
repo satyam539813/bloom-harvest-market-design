@@ -14,12 +14,12 @@ serve(async (req) => {
   }
 
   try {
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    console.log('OPENAI_API_KEY exists:', !!OPENAI_API_KEY);
+    const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
+    console.log('OPENROUTER_API_KEY exists:', !!OPENROUTER_API_KEY);
     
-    if (!OPENAI_API_KEY) {
-      console.error('OPENAI_API_KEY is not set in environment variables');
-      throw new Error('OPENAI_API_KEY is not configured');
+    if (!OPENROUTER_API_KEY) {
+      console.error('OPENROUTER_API_KEY is not set in environment variables');
+      throw new Error('OPENROUTER_API_KEY is not configured');
     }
 
     const { image, prompt } = await req.json();
@@ -29,17 +29,19 @@ serve(async (req) => {
     }
 
     const analysisPrompt = prompt || "Analyze this agricultural image briefly: 1) Crop type, 2) Health status, 3) Growth stage, 4) Visible issues, 5) Recommendations. Be concise.";
-    console.log(`Analyzing image with OpenAI Vision using prompt: "${analysisPrompt}"`);
+    console.log(`Analyzing image with OpenRouter Vision using prompt: "${analysisPrompt}"`);
 
-    // Call OpenRouter API with DeepSeek model
+    // Call OpenRouter API with vision model
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://farmfresh.lovable.app',
+        'X-Title': 'FarmFresh Image Analysis',
       },
       body: JSON.stringify({
-        model: 'moonshotai/kimi-k2:free',
+        model: 'openai/gpt-4o-mini',
         messages: [
           {
             role: 'user',
@@ -63,18 +65,18 @@ serve(async (req) => {
       }),
     });
 
-    console.log('OpenAI API response status:', response.status);
+    console.log('OpenRouter API response status:', response.status);
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('OpenAI API error:', errorData);
-      throw new Error(`OpenAI API error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
+      console.error('OpenRouter API error:', errorData);
+      throw new Error(`OpenRouter API error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
     }
 
     const analysisResult = await response.json();
     const analysis = analysisResult.choices?.[0]?.message?.content || 'No analysis available';
     
-    console.log('OpenAI Vision analysis successful');
+    console.log('OpenRouter Vision analysis successful');
     console.log('Analysis length:', analysis.length);
 
     return new Response(
