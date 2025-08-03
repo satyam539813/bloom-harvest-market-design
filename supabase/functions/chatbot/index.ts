@@ -61,7 +61,7 @@ serve(async (req) => {
     if (Deno.env.get('OPENROUTER_API_KEY')) {
       API_KEY = Deno.env.get('OPENROUTER_API_KEY');
       apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
-      model = 'meta-llama/llama-3.1-8b-instruct:free';
+      model = 'microsoft/wizardlm-2-8x22b';
       headers = {
         'Authorization': `Bearer ${API_KEY}`,
         'Content-Type': 'application/json',
