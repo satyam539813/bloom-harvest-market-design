@@ -41,7 +41,7 @@ serve(async (req) => {
         'X-Title': 'FarmFresh Image Analysis',
       },
       body: JSON.stringify({
-        model: 'openai/gpt-4o-mini',
+        model: 'google/gemini-pro-vision',
         messages: [
           {
             role: 'user',

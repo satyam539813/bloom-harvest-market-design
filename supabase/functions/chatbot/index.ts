@@ -51,25 +51,56 @@ serve(async (req) => {
 
     console.log(`Processing chatbot request with prompt: "${prompt}"`);
 
-    // Try OpenRouter first, fallback to OpenAI
+    // Determine which API to use based on available keys
     let response;
-    let apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
-    let model = 'meta-llama/llama-3.1-8b-instruct:free';
-    let headers: any = {
-      'Authorization': `Bearer ${API_KEY}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': 'https://farmfresh.lovable.app',
-      'X-Title': 'FarmFresh AI Assistant',
-    };
+    let apiUrl;
+    let model;
+    let headers: any;
 
-    // If it's not an OpenRouter key, try OpenAI
-    if (API_KEY.startsWith('sk-')) {
+    // Check for OpenRouter API key first
+    if (Deno.env.get('OPENROUTER_API_KEY')) {
+      API_KEY = Deno.env.get('OPENROUTER_API_KEY');
+      apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
+      model = 'meta-llama/llama-3.1-8b-instruct:free';
+      headers = {
+        'Authorization': `Bearer ${API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://farmfresh.lovable.app',
+        'X-Title': 'FarmFresh AI Assistant',
+      };
+    } 
+    // Fallback to OpenAI if available
+    else if (Deno.env.get('OPENAI_API_KEY')) {
+      API_KEY = Deno.env.get('OPENAI_API_KEY');
       apiUrl = 'https://api.openai.com/v1/chat/completions';
       model = 'gpt-4o-mini';
       headers = {
         'Authorization': `Bearer ${API_KEY}`,
         'Content-Type': 'application/json',
       };
+    }
+    // Fallback to Gemini if available
+    else if (Deno.env.get('GEMINI_API_KEY')) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Gemini API not yet implemented. Please use OpenRouter or OpenAI API key.'
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+    else {
+      return new Response(
+        JSON.stringify({ 
+          error: 'No valid API key found. Please configure OPENROUTER_API_KEY or OPENAI_API_KEY.',
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
     console.log('Using API URL:', apiUrl);
