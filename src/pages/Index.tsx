@@ -8,7 +8,6 @@ import FarmStory from '@/components/FarmStory';
 import Testimonials from '@/components/Testimonials';
 import Newsletter from '@/components/Newsletter';
 import Footer from '@/components/Footer';
-import Chatbot from '@/components/Chatbot';
 
 const Index = () => {
   return (
@@ -23,7 +22,6 @@ const Index = () => {
         <Newsletter />
       </main>
       <Footer />
-      <Chatbot />
     </div>
   );
 };

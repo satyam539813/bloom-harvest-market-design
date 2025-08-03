@@ -128,9 +128,9 @@ const Shop = () => {
           <div className="flex-1 space-y-6">
             <div className="bg-gradient-to-r from-card to-farm-green-light/5 rounded-2xl p-6 border border-farm-green/10">
               <div className="flex items-center justify-between text-sm text-muted-foreground">
-                <span>Showing fresh, organic products</span>
+                <span>Browse through 500+ premium organic products</span>
                 <span className="bg-farm-green/10 text-farm-green px-3 py-1 rounded-full font-medium">
-                  Free Delivery Available
+                  🚚 Free Delivery • 📱 Smart Search • ♻️ Sustainable
                 </span>
               </div>
             </div>
