@@ -33,6 +33,14 @@ const ProductGrid = ({ activeCategory, activeFilters }: ProductGridProps) => {
       return false;
     }
 
+    if (activeFilters.premium && product.badge !== "Premium") {
+      return false;
+    }
+
+    if (activeFilters.local && product.badge !== "Local") {
+      return false;
+    }
+
     // Price range filter
     if (activeFilters.priceRange) {
       const [min, max] = activeFilters.priceRange;

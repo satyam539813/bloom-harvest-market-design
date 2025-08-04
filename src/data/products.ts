@@ -246,5 +246,271 @@ export const products = [
     unit: "32oz",
     image: "https://images.unsplash.com/photo-1571212515416-6bb9a2b8ce4c?auto=format&fit=crop&w=600&q=80",
     description: "Thick, creamy Greek yogurt made from local milk. High in protein and probiotics for digestive health."
+  },
+  {
+    id: 25,
+    name: "Organic Brown Rice",
+    category: "Grains",
+    price: 5.99,
+    unit: "2lb bag",
+    image: "https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    description: "Nutty, whole grain brown rice packed with fiber and nutrients. Perfect for healthy meals and meal prep."
+  },
+  {
+    id: 26,
+    name: "Steel Cut Oats",
+    category: "Grains",
+    price: 6.49,
+    unit: "32oz canister",
+    image: "https://images.unsplash.com/photo-1517260739729-c0566ccf276b?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    badge: "Heart Healthy",
+    description: "Premium steel cut oats with a hearty texture and nutty flavor. Rich in fiber and perfect for breakfast."
+  },
+  {
+    id: 27,
+    name: "Organic Barley",
+    category: "Grains",
+    price: 4.99,
+    unit: "1.5lb bag",
+    image: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    description: "Chewy, nutritious barley perfect for soups, stews, and pilafs. High in fiber and protein."
+  },
+  {
+    id: 28,
+    name: "Wild Rice Blend",
+    category: "Grains",
+    price: 8.99,
+    unit: "1lb bag",
+    image: "https://images.unsplash.com/photo-1543826173-0bcd245e03d2?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    badge: "Premium",
+    description: "Exotic blend of wild and brown rice with a distinctive nutty flavor and beautiful presentation."
+  },
+  {
+    id: 29,
+    name: "Organic Bulgur Wheat",
+    category: "Grains",
+    price: 3.99,
+    unit: "1lb bag",
+    image: "https://images.unsplash.com/photo-1574870111867-089730e5a72b?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    description: "Quick-cooking bulgur wheat, perfect for tabbouleh, pilafs, and Mediterranean dishes."
+  },
+  {
+    id: 30,
+    name: "Black Beans",
+    category: "Grains",
+    price: 2.99,
+    unit: "1lb bag",
+    image: "https://images.unsplash.com/photo-1602209982016-d8bf3641eb72?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    description: "Protein-rich organic black beans, perfect for Mexican dishes, soups, and salads."
+  },
+  {
+    id: 31,
+    name: "Red Lentils",
+    category: "Grains",
+    price: 3.49,
+    unit: "1lb bag",
+    image: "https://images.unsplash.com/photo-1607627000458-210e8d2a27b0?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    description: "Quick-cooking red lentils that break down beautifully in curries and soups. High in protein and fiber."
+  },
+  {
+    id: 32,
+    name: "Organic Chickpeas",
+    category: "Grains",
+    price: 3.99,
+    unit: "1lb bag",
+    image: "https://images.unsplash.com/photo-1610057099431-d73a1c9d2f2f?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    description: "Versatile chickpeas perfect for hummus, curries, roasting, and Mediterranean cuisine."
+  },
+  {
+    id: 33,
+    name: "Organic Farro",
+    category: "Grains",
+    price: 7.49,
+    unit: "1lb bag",
+    image: "https://images.unsplash.com/photo-1595854341625-f33ee10dbf94?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    badge: "Ancient Grain",
+    description: "Ancient grain farro with a chewy texture and nutty flavor. Perfect for grain bowls and risottos."
+  },
+  {
+    id: 34,
+    name: "Organic Millet",
+    category: "Grains",
+    price: 4.49,
+    unit: "1lb bag",
+    image: "https://images.unsplash.com/photo-1516594798947-e65505dbb29d?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    description: "Gluten-free millet with a mild, corn-like flavor. Great for porridge, pilafs, and baking."
+  },
+  {
+    id: 35,
+    name: "Organic Spelt Flour",
+    category: "Grains",
+    price: 6.99,
+    unit: "2lb bag",
+    image: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    description: "Ancient grain spelt flour with a nutty flavor, perfect for artisan breads and baking."
+  },
+  {
+    id: 36,
+    name: "Jasmine Rice",
+    category: "Grains",
+    price: 5.49,
+    unit: "2lb bag",
+    image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80",
+    description: "Fragrant jasmine rice with a delicate floral aroma. Perfect for Asian cuisine and side dishes."
+  },
+  {
+    id: 37,
+    name: "Organic Amaranth",
+    category: "Grains",
+    price: 8.49,
+    unit: "1lb bag",
+    image: "https://images.unsplash.com/photo-1595854341625-f33ee10dbf94?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    badge: "Superfood",
+    description: "Protein-rich amaranth grain with a slightly peppery flavor. Great for porridge and gluten-free baking."
+  },
+  {
+    id: 38,
+    name: "Organic Sweet Potatoes",
+    category: "Vegetables",
+    price: 2.99,
+    unit: "2lb bag",
+    image: "https://images.unsplash.com/photo-1590301157890-4810ed352733?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    description: "Sweet, creamy orange sweet potatoes packed with vitamins and antioxidants. Perfect for roasting or baking."
+  },
+  {
+    id: 39,
+    name: "Organic Broccoli",
+    category: "Vegetables",
+    price: 3.49,
+    unit: "bunch",
+    image: "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    description: "Fresh organic broccoli crowns with vibrant green color. High in vitamins C and K, perfect for steaming or stir-frying."
+  },
+  {
+    id: 40,
+    name: "Organic Cauliflower",
+    category: "Vegetables",
+    price: 4.99,
+    unit: "head",
+    image: "https://images.unsplash.com/photo-1568584711271-946d80d0bf50?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    description: "Crisp white cauliflower head, versatile for roasting, mashing, or making cauliflower rice."
+  },
+  {
+    id: 41,
+    name: "Organic Brussels Sprouts",
+    category: "Vegetables",
+    price: 4.49,
+    unit: "1lb bag",
+    image: "https://images.unsplash.com/photo-1550087763-6a8f05b94ade?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    description: "Mini cabbages with a slightly bitter, nutty flavor. Delicious roasted with olive oil and seasonings."
+  },
+  {
+    id: 42,
+    name: "Organic Zucchini",
+    category: "Vegetables",
+    price: 3.99,
+    unit: "2lb bag",
+    image: "https://images.unsplash.com/photo-1601470982235-8cf23e8f5c1b?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    description: "Tender organic zucchini perfect for grilling, baking into bread, or spiralizing into noodles."
+  },
+  {
+    id: 43,
+    name: "Organic Corn on the Cob",
+    category: "Vegetables",
+    price: 5.99,
+    unit: "6-pack",
+    image: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    badge: "Summer Special",
+    description: "Sweet, juicy corn on the cob perfect for grilling or boiling. Non-GMO and naturally sweet."
+  },
+  {
+    id: 44,
+    name: "Purple Cabbage",
+    category: "Vegetables",
+    price: 2.99,
+    unit: "head",
+    image: "https://images.unsplash.com/photo-1594282486552-05b4d80fbb9f?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    description: "Vibrant purple cabbage rich in antioxidants. Great for slaws, salads, or fermented vegetables."
+  },
+  {
+    id: 45,
+    name: "Organic Asparagus",
+    category: "Vegetables",
+    price: 5.99,
+    unit: "bunch",
+    image: "https://images.unsplash.com/photo-1550058726-f41e0e7ab135?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    badge: "Spring Harvest",
+    description: "Tender spring asparagus spears with a delicate flavor. Perfect for grilling, roasting, or steaming."
+  },
+  {
+    id: 46,
+    name: "Organic Beets",
+    category: "Vegetables",
+    price: 3.99,
+    unit: "bunch",
+    image: "https://images.unsplash.com/photo-1603048719539-9ecef1a71a6c?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    description: "Earthy, sweet beets with leafy greens attached. Rich in folate and perfect for roasting or juicing."
+  },
+  {
+    id: 47,
+    name: "Organic Cucumber",
+    category: "Vegetables",
+    price: 2.49,
+    unit: "3-pack",
+    image: "https://images.unsplash.com/photo-1604977042946-2716c3b37010?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    description: "Crisp, refreshing cucumbers perfect for salads, pickling, or infused water."
+  },
+  {
+    id: 48,
+    name: "Organic Radishes",
+    category: "Vegetables",
+    price: 2.99,
+    unit: "bunch",
+    image: "https://images.unsplash.com/photo-1606156834265-bb65ef7b7e3b?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    description: "Peppery radishes with a crisp texture. Great for salads, roasting, or as a crunchy snack."
+  },
+  {
+    id: 49,
+    name: "Organic Eggplant",
+    category: "Vegetables",
+    price: 4.49,
+    unit: "each",
+    image: "https://images.unsplash.com/photo-1589621316382-008455b857cd?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    description: "Glossy purple eggplant with creamy flesh. Perfect for Mediterranean dishes, grilling, or baba ganoush."
+  },
+  {
+    id: 50,
+    name: "Organic Mushroom Mix",
+    category: "Vegetables",
+    price: 6.99,
+    unit: "8oz package",
+    image: "https://images.unsplash.com/photo-1614791401186-83bfade02ce4?auto=format&fit=crop&w=600&q=80",
+    organic: true,
+    badge: "Gourmet",
+    description: "Mix of shiitake, oyster, and cremini mushrooms. Rich umami flavor perfect for cooking and sautéing."
   }
 ];
