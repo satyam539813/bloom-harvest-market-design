@@ -90,7 +90,7 @@ const FeaturedProducts = () => {
         {/* Enhanced Tabs */}
         <Tabs defaultValue="all" className="w-full max-w-4xl mx-auto mb-16">
           <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-1 mb-12 bg-transparent border-b border-border/30 p-0 rounded-none">
-            {categories.slice(0, 4).map((category: string) => <TabsTrigger key={category} value={category} onClick={() => setActiveTab(category)} className="capitalize px-4 py-2 rounded-none font-normal text-sm transition-colors duration-200 data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary hover:text-foreground/80 text-muted-foreground border-b-2 border-transparent bg-slate-50">
+            {categories.slice(0, 4).map((category: string) => <TabsTrigger key={category} value={category} onClick={() => setActiveTab(category)} className="capitalize px-4 py-2 rounded-lg font-normal text-sm transition-all duration-200 data-[state=active]:bg-primary/5 data-[state=active]:text-primary hover:bg-muted/50 text-muted-foreground bg-background border border-border/30">
                 {category === "all" ? "All Products" : category}
               </TabsTrigger>)}
           </TabsList>
