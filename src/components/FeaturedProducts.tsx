@@ -241,24 +241,6 @@ const FeaturedProducts = () => {
           ))}
         </div>
 
-        {/* Enhanced CTA Section */}
-        <div className="text-center mt-16">
-          <div className="inline-flex flex-col items-center space-y-4 p-8 bg-white/60 backdrop-blur-sm rounded-3xl border border-border/50 shadow-xl">
-            <h3 className="text-2xl font-bold text-farm-green-dark">
-              Discover More Fresh Products
-            </h3>
-            <p className="text-gray-600 max-w-md">
-              Explore our complete collection of farm-fresh produce and artisanal goods
-            </p>
-            <Button 
-              className="bg-gradient-to-r from-farm-green to-farm-green-dark hover:from-farm-green-dark hover:to-farm-green text-white rounded-full px-8 py-6 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-              onClick={() => window.location.href = '/shop'}
-            >
-              View All Products
-              <Star className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
-        </div>
 
         {/* Product Info Modal */}
         <ProductInfoModal
