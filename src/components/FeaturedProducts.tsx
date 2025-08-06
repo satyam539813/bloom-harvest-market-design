@@ -26,33 +26,34 @@ interface Product {
   organic?: boolean;
   description: string;
 }
-
 const FeaturedProducts = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { toast } = useToast();
-  const { addToCart } = useCart();
-  const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
+  const {
+    toast
+  } = useToast();
+  const {
+    addToCart
+  } = useCart();
+  const {
+    addToFavorites,
+    removeFromFavorites,
+    isFavorite
+  } = useFavorites();
 
   // Filter products based on active tab
-  const filteredProducts = activeTab === "all" 
-    ? products.slice(0, 8) // Show only 8 products for better layout
-    : products.filter(product => 
-        product.category.toLowerCase() === activeTab.toLowerCase()
-      ).slice(0, 8);
-  
+  const filteredProducts = activeTab === "all" ? products.slice(0, 8) // Show only 8 products for better layout
+  : products.filter(product => product.category.toLowerCase() === activeTab.toLowerCase()).slice(0, 8);
   const categories = ["all", ...new Set(products.map(product => product.category.toLowerCase()))];
-
   const handleAddToCart = (product: Product) => {
     addToCart(product);
     toast({
       title: "Added to cart",
-      description: `${product.name} has been added to your cart.`,
+      description: `${product.name} has been added to your cart.`
     });
   };
-
   const handleToggleFavorite = (product: Product) => {
     if (isFavorite(product.id)) {
       removeFromFavorites(product.id);
@@ -60,14 +61,11 @@ const FeaturedProducts = () => {
       addToFavorites(product);
     }
   };
-
   const handleProductInfo = (product: Product) => {
     setSelectedProduct(product);
     setIsModalOpen(true);
   };
-
-  return (
-    <section className="py-24 bg-gradient-to-br from-background via-muted/20 to-background relative overflow-hidden">
+  return <section className="py-24 bg-gradient-to-br from-background via-muted/20 to-background relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-20 left-10 w-32 h-32 bg-farm-green rounded-full blur-3xl"></div>
@@ -92,67 +90,33 @@ const FeaturedProducts = () => {
         {/* Enhanced Tabs */}
         <Tabs defaultValue="all" className="w-full max-w-4xl mx-auto mb-16">
           <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-1 mb-12 bg-transparent border-b border-border/30 p-0 rounded-none">
-            {categories.slice(0, 4).map((category: string) => (
-              <TabsTrigger 
-                key={category} 
-                value={category}
-                className="capitalize px-4 py-2 rounded-none font-normal text-sm transition-colors duration-200 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary hover:text-foreground/80 text-muted-foreground border-b-2 border-transparent"
-                onClick={() => setActiveTab(category)}
-              >
+            {categories.slice(0, 4).map((category: string) => <TabsTrigger key={category} value={category} onClick={() => setActiveTab(category)} className="capitalize px-4 py-2 rounded-none font-normal text-sm transition-colors duration-200 data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary hover:text-foreground/80 text-muted-foreground border-b-2 border-transparent bg-slate-50">
                 {category === "all" ? "All Products" : category}
-              </TabsTrigger>
-            ))}
+              </TabsTrigger>)}
           </TabsList>
         </Tabs>
         
         {/* Enhanced Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {filteredProducts.map((product: Product, index) => (
-            <Card 
-              key={product.id} 
-              className="group overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-farm-green/20 border-0 bg-white/80 backdrop-blur-sm hover:scale-[1.02] animate-fade-in"
-              style={{ animationDelay: `${index * 100}ms` }}
-              onMouseEnter={() => setHoveredProduct(product.id)}
-              onMouseLeave={() => setHoveredProduct(null)}
-            >
+          {filteredProducts.map((product: Product, index) => <Card key={product.id} className="group overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-farm-green/20 border-0 bg-white/80 backdrop-blur-sm hover:scale-[1.02] animate-fade-in" style={{
+          animationDelay: `${index * 100}ms`
+        }} onMouseEnter={() => setHoveredProduct(product.id)} onMouseLeave={() => setHoveredProduct(null)}>
               <div className="relative aspect-square overflow-hidden">
-                <img 
-                  src={product.image || product.image_url || "/placeholder.svg"} 
-                  alt={product.name} 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
+                <img src={product.image || product.image_url || "/placeholder.svg"} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 
                 {/* Overlay with quick actions */}
-                <div className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${
-                  hoveredProduct === product.id ? 'opacity-100' : 'opacity-0'
-                }`}>
+                <div className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${hoveredProduct === product.id ? 'opacity-100' : 'opacity-0'}`}>
                   <div className="absolute top-4 right-4 flex flex-col gap-2">
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className={`w-10 h-10 rounded-full shadow-lg transition-all duration-300 ${
-                        isFavorite(product.id) 
-                          ? 'bg-red-500 hover:bg-red-600 text-white' 
-                          : 'bg-white/90 hover:bg-white text-gray-700'
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleFavorite(product);
-                      }}
-                    >
-                      <Heart className={`h-4 w-4 transition-all duration-300 ${
-                        isFavorite(product.id) ? 'fill-current scale-110' : ''
-                      }`} />
+                    <Button size="icon" variant="secondary" className={`w-10 h-10 rounded-full shadow-lg transition-all duration-300 ${isFavorite(product.id) ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-white/90 hover:bg-white text-gray-700'}`} onClick={e => {
+                  e.stopPropagation();
+                  handleToggleFavorite(product);
+                }}>
+                      <Heart className={`h-4 w-4 transition-all duration-300 ${isFavorite(product.id) ? 'fill-current scale-110' : ''}`} />
                     </Button>
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-lg"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleProductInfo(product);
-                      }}
-                    >
+                    <Button size="icon" variant="secondary" className="w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-lg" onClick={e => {
+                  e.stopPropagation();
+                  handleProductInfo(product);
+                }}>
                       <Info className="h-4 w-4" />
                     </Button>
                   </div>
@@ -160,32 +124,20 @@ const FeaturedProducts = () => {
                 
                 {/* Badges */}
                 <div className="absolute top-4 left-4 flex flex-col gap-2">
-                  {product.organic && (
-                    <Badge className="bg-farm-green text-white font-semibold shadow-lg">
+                  {product.organic && <Badge className="bg-farm-green text-white font-semibold shadow-lg">
                       Organic
-                    </Badge>
-                  )}
-                  {product.badge && (
-                    <Badge className={`font-semibold shadow-lg ${
-                      product.badge === "Sale" 
-                        ? "bg-red-500 text-white" 
-                        : product.badge === "New"
-                        ? "bg-blue-500 text-white"
-                        : "bg-purple-500 text-white"
-                    }`}>
+                    </Badge>}
+                  {product.badge && <Badge className={`font-semibold shadow-lg ${product.badge === "Sale" ? "bg-red-500 text-white" : product.badge === "New" ? "bg-blue-500 text-white" : "bg-purple-500 text-white"}`}>
                       {product.badge}
-                    </Badge>
-                  )}
+                    </Badge>}
                 </div>
 
                 {/* Discount percentage */}
-                {product.discount && product.oldPrice && (
-                  <div className="absolute bottom-4 left-4">
+                {product.discount && product.oldPrice && <div className="absolute bottom-4 left-4">
                     <Badge className="bg-red-500 text-white font-bold">
-                      -{Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)}%
+                      -{Math.round((product.oldPrice - product.price) / product.oldPrice * 100)}%
                     </Badge>
-                  </div>
-                )}
+                  </div>}
               </div>
               
               <CardContent className="p-6 space-y-4">
@@ -210,50 +162,30 @@ const FeaturedProducts = () => {
                       </span>
                       <span className="text-sm text-gray-500">/ {product.unit}</span>
                     </div>
-                    {product.discount && product.oldPrice && (
-                      <span className="text-sm line-through text-gray-400">
+                    {product.discount && product.oldPrice && <span className="text-sm line-through text-gray-400">
                         ${product.oldPrice.toFixed(2)}
-                      </span>
-                    )}
+                      </span>}
                   </div>
                   
                   {/* Rating stars */}
                   <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star 
-                        key={i} 
-                        className="h-4 w-4 fill-yellow-400 text-yellow-400" 
-                      />
-                    ))}
+                    {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />)}
                     <span className="text-xs text-gray-500 ml-1">(4.8)</span>
                   </div>
                 </div>
                 
-                <Button 
-                  className="w-full bg-farm-green hover:bg-farm-green-dark text-white rounded-xl py-6 font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-farm-green/30 group"
-                  onClick={() => handleAddToCart(product)}
-                >
+                <Button className="w-full bg-farm-green hover:bg-farm-green-dark text-white rounded-xl py-6 font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-farm-green/30 group" onClick={() => handleAddToCart(product)}>
                   <ShoppingCart className="h-5 w-5 mr-2 transition-transform group-hover:scale-110" />
                   Add to Cart
                 </Button>
               </CardContent>
-            </Card>
-          ))}
+            </Card>)}
         </div>
 
 
         {/* Product Info Modal */}
-        <ProductInfoModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          productName={selectedProduct?.name || ''}
-          productImage={selectedProduct?.image || selectedProduct?.image_url}
-          productDescription={selectedProduct?.description}
-          category={selectedProduct?.category}
-        />
+        <ProductInfoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} productName={selectedProduct?.name || ''} productImage={selectedProduct?.image || selectedProduct?.image_url} productDescription={selectedProduct?.description} category={selectedProduct?.category} />
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default FeaturedProducts;
