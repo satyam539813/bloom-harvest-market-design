@@ -1,4 +1,14 @@
 
+// Import all product images
+import organicRedApples from '@/assets/organic-red-apples.jpg';
+import freshGardenSpinach from '@/assets/fresh-garden-spinach.jpg';
+import freeRangeEggs from '@/assets/free-range-eggs.jpg';
+import heirloomTomatoes from '@/assets/heirloom-tomatoes.jpg';
+import wildflowerHoney from '@/assets/wildflower-honey.jpg';
+import freshBasil from '@/assets/fresh-basil.jpg';
+import wholeGrainBread from '@/assets/whole-grain-bread.jpg';
+import grassFedBeef from '@/assets/grass-fed-beef.jpg';
+
 export const products = [
   {
     id: 1,
@@ -6,7 +16,7 @@ export const products = [
     category: "Fruits",
     price: 4.99,
     unit: "kg",
-    image: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=600&q=80",
+    image: organicRedApples,
     discount: true,
     oldPrice: 6.99,
     badge: "Sale",
@@ -19,7 +29,7 @@ export const products = [
     category: "Vegetables",
     price: 3.49,
     unit: "bunch",
-    image: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=600&q=80",
+    image: freshGardenSpinach,
     organic: true,
     description: "Nutrient-rich organic spinach leaves, freshly harvested from our sustainable farm. Great for salads, smoothies, or cooking."
   },
@@ -29,7 +39,7 @@ export const products = [
     category: "Dairy",
     price: 5.99,
     unit: "dozen",
-    image: "https://images.unsplash.com/photo-1598965402089-897ce52e8355?auto=format&fit=crop&w=600&q=80",
+    image: freeRangeEggs,
     badge: "New",
     description: "Farm-fresh eggs from free-range chickens. These eggs have bright yellow yolks and exceptional flavor."
   },
@@ -39,7 +49,7 @@ export const products = [
     category: "Vegetables",
     price: 4.29,
     unit: "lb",
-    image: "https://images.unsplash.com/photo-1518977822534-7049a61ee0c2?auto=format&fit=crop&w=600&q=80",
+    image: heirloomTomatoes,
     organic: true,
     description: "Colorful mix of heirloom tomato varieties, each with unique flavor profiles. Perfect for salads and gourmet dishes."
   },
@@ -49,7 +59,7 @@ export const products = [
     category: "Honey",
     price: 9.99,
     unit: "jar",
-    image: "https://images.unsplash.com/photo-1587049352851-8d4e89133924?auto=format&fit=crop&w=600&q=80",
+    image: wildflowerHoney,
     organic: true,
     description: "Pure, unfiltered wildflower honey collected from local bee farms. Rich in flavor and natural enzymes."
   },
@@ -59,7 +69,7 @@ export const products = [
     category: "Herbs",
     price: 2.99,
     unit: "bunch",
-    image: "https://images.unsplash.com/photo-1618164436241-4473940d1f9c?auto=format&fit=crop&w=600&q=80",
+    image: freshBasil,
     organic: true,
     description: "Aromatic fresh basil with vibrant green leaves. Essential for Italian cooking, pesto, and summer salads."
   },
@@ -69,7 +79,7 @@ export const products = [
     category: "Bread",
     price: 5.49,
     unit: "loaf",
-    image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80",
+    image: wholeGrainBread,
     description: "Freshly baked whole grain bread made with organic flour. Hearty and delicious with a perfect crust."
   },
   {
@@ -78,7 +88,7 @@ export const products = [
     category: "Meat",
     price: 12.99,
     unit: "lb",
-    image: "https://images.unsplash.com/photo-1551028150-64b9f398f678?auto=format&fit=crop&w=600&q=80",
+    image: grassFedBeef,
     badge: "Premium",
     discount: true,
     oldPrice: 15.99,
