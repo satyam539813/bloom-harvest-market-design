@@ -77,7 +77,7 @@ const Shop = () => {
         {/* Filters Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div className="flex items-center gap-4">
-            <h2 className="text-2xl font-semibold text-foreground">All Products</h2>
+            <h2 className="text-lg font-normal text-muted-foreground">All Products</h2>
             {activeFilterCount > 0 && (
               <Badge variant="secondary" className="gap-2">
                 <SlidersHorizontal className="w-3 h-3" />
