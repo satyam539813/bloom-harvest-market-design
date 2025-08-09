@@ -49,9 +49,9 @@ const Shop = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative py-12 bg-gradient-to-br from-primary/5 via-background to-primary/5 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary)/0.06)_0%,transparent_50%)]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(var(--primary)/0.06)_0%,transparent_50%)]"></div>
+      <section className="relative py-16 bg-gradient-to-br from-primary/5 via-background to-primary/5 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary)/0.1)_0%,transparent_50%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(var(--primary)/0.1)_0%,transparent_50%)]"></div>
         
         <div className="container mx-auto px-4 relative">
           <div className="text-center space-y-6 max-w-4xl mx-auto">
@@ -173,7 +173,7 @@ const Shop = () => {
           {/* Desktop Sidebar */}
           <aside className="hidden lg:block w-80 space-y-6">
             <div className="sticky top-24 space-y-6">
-              <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+              <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-semibold text-foreground">Filters</h3>
                   {activeFilterCount > 0 && (

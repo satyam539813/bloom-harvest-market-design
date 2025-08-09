@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+
 interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
@@ -21,10 +21,9 @@ const Chatbot = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [conversationId, setConversationId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-  const { user } = useAuth();
+
   const botName = "FarmBot";
   const welcomeMessage = `Hey! I'm ${botName}, your personal agricultural assistant! 🌱 I'm here to help you with everything about farming, crops, and organic produce. Ask me anything!`;
 
@@ -49,7 +48,7 @@ const Chatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-const sendMessage = async () => {
+  const sendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
 
     const userMessage: ChatMessage = {
@@ -65,30 +64,6 @@ const sendMessage = async () => {
     setIsTyping(true);
 
     try {
-      // Persist conversation and user message if signed in
-      let convId = conversationId;
-      if (user) {
-        if (!convId) {
-          const { data: conv, error: convErr } = await supabase
-            .from('chat_conversations')
-            .insert({ user_id: user.id, title: userMessage.content.slice(0, 60) })
-            .select('id')
-            .single();
-          if (convErr) throw convErr;
-          convId = conv.id;
-          setConversationId(conv.id);
-        }
-        // Insert user message
-        await supabase.from('chat_messages').insert({
-          conversation_id: convId!,
-          user_id: user.id,
-          role: 'user',
-          content: userMessage.content
-        });
-      } else {
-        toast({ title: 'Not signed in', description: 'Sign in to save chat history.', variant: 'default' });
-      }
-
       const { data, error } = await supabase.functions.invoke('chatbot', {
         body: {
           prompt: `You are ${botName}, a friendly agricultural assistant. Answer this question about farming, crops, or agriculture: "${inputMessage.trim()}". Be helpful, informative, and conversational. If the question is not related to agriculture, politely redirect to farming topics.`
@@ -109,20 +84,10 @@ const sendMessage = async () => {
       };
 
       // Add typing delay for better UX
-      setTimeout(async () => {
+      setTimeout(() => {
         setMessages(prev => [...prev, botResponse]);
         setIsTyping(false);
         setIsLoading(false);
-
-        // Persist assistant message
-        if (user && convId) {
-          await supabase.from('chat_messages').insert({
-            conversation_id: convId,
-            user_id: user.id,
-            role: 'assistant',
-            content: botResponse.content
-          });
-        }
       }, 1000);
 
     } catch (error) {
