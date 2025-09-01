@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Bot, Sparkles, X, Leaf, Heart, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 interface ProductInfoModalProps {
   isOpen: boolean;
@@ -34,25 +33,26 @@ const ProductInfoModal: React.FC<ProductInfoModalProps> = ({
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('chatbot', {
-        body: {
-          prompt: `Provide detailed information about ${productName} as a ${category?.toLowerCase() || 'agricultural product'}. Include: 
-          1) Nutritional benefits and health properties
-          2) Growing conditions and farming requirements  
-          3) Culinary uses and preparation tips
-          4) Storage and freshness tips
-          5) Interesting facts or varieties
-          Be informative, engaging, and focus on practical information for consumers. Format with clear sections.`
-        }
-      });
+      // Mock AI information for demo purposes
+      // You can integrate with OpenAI, Gemini, or other AI services here
+      const mockInfo = `Detailed Information about ${productName}:
 
-      if (error) throw error;
+1) Nutritional Benefits and Health Properties
+Rich in essential vitamins, minerals, and antioxidants. This ${category?.toLowerCase() || 'product'} provides excellent nutritional value and supports overall health and wellness.
 
-      if (data?.error) {
-        throw new Error(data.error);
-      }
+2) Growing Conditions and Farming Requirements
+Thrives in well-drained soil with adequate sunlight and proper irrigation. Requires careful attention to seasonal growing patterns and sustainable farming practices.
 
-      setAiInfo(data?.reply || "Information not available at the moment.");
+3) Culinary Uses and Preparation Tips
+Versatile ingredient that can be used in various cooking methods. Best prepared fresh and pairs well with complementary flavors and seasonings.
+
+4) Storage and Freshness Tips
+Store in a cool, dry place or refrigerate as appropriate. Consume within recommended timeframe for optimal freshness and nutritional value.
+
+5) Interesting Facts or Varieties
+This product has been cultivated for centuries and comes in several varieties, each with unique characteristics and flavor profiles.`;
+
+      setAiInfo(mockInfo);
       setHasLoadedInfo(true);
 
     } catch (error) {
@@ -62,7 +62,7 @@ const ProductInfoModal: React.FC<ProductInfoModalProps> = ({
         description: "Please try again in a moment.",
         variant: "destructive"
       });
-      setAiInfo("Sorry, I couldn't load the information right now. Please try again later.");
+      setAiInfo("Sorry, I couldn't load the detailed information right now. Please try again later.");
     } finally {
       setIsLoading(false);
     }

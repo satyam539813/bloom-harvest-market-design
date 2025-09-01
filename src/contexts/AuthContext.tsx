@@ -1,15 +1,22 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Session, User } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { 
+  User,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut,
+  signInWithPopup,
+  onAuthStateChanged
+} from "firebase/auth";
+import { auth, googleProvider, facebookProvider } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 
 type AuthContextType = {
-  session: Session | null;
   user: User | null;
   isLoading: boolean;
   signUp: (email: string, password: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  signInWithFacebook: () => Promise<void>;
   signOut: () => Promise<void>;
   getUserOrders: () => Promise<any[]>;
   createOrder: (items: { productId: number; quantity: number; price: number }[]) => Promise<string | null>;
@@ -18,56 +25,32 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (event === 'SIGNED_IN') {
-          toast({
-            title: "Signed in successfully",
-            description: "Welcome back to FarmFresh!",
-          });
-        }
-        if (event === 'SIGNED_OUT') {
-          toast({
-            title: "Signed out successfully",
-            description: "You have been signed out.",
-          });
-        }
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
       setIsLoading(false);
+      
+      if (user) {
+        toast({
+          title: "Signed in successfully",
+          description: "Welcome back to FarmFresh!",
+        });
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => unsubscribe();
   }, [toast]);
 
   const signUp = async (email: string, password: string) => {
     try {
-      const redirectUrl = `${window.location.origin}/`;
-      const { error } = await supabase.auth.signUp({ 
-        email, 
-        password,
-        options: {
-          emailRedirectTo: redirectUrl
-        }
-      });
-      if (error) throw error;
+      await createUserWithEmailAndPassword(auth, email, password);
       toast({
         title: "Account created successfully",
-        description: "Please check your email to verify your account.",
+        description: "Welcome to FarmFresh!",
       });
     } catch (error: any) {
       toast({
@@ -81,8 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (error: any) {
       toast({
         title: "Error signing in",
@@ -93,10 +75,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (error: any) {
+      toast({
+        title: "Error signing in with Google",
+        description: error.message,
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const signInWithFacebook = async () => {
+    try {
+      await signInWithPopup(auth, facebookProvider);
+    } catch (error: any) {
+      toast({
+        title: "Error signing in with Facebook",
+        description: error.message,
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      await firebaseSignOut(auth);
+      toast({
+        title: "Signed out successfully",
+        description: "You have been signed out.",
+      });
     } catch (error: any) {
       toast({
         title: "Error signing out",
@@ -107,74 +118,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Function to get user's orders
+  // Mock functions for orders (you can integrate with Firebase Firestore later)
   const getUserOrders = async () => {
     if (!user) return [];
     
-    try {
-      const { data: orders, error } = await supabase
-        .from('orders')
-        .select(`
-          id,
-          status,
-          created_at,
-          updated_at,
-          order_items (
-            id,
-            product_id,
-            quantity,
-            price_at_purchase,
-            created_at
-          )
-        `)
-        .order('created_at', { ascending: false });
-        
-      if (error) throw error;
-      return orders || [];
-    } catch (error: any) {
-      toast({
-        title: "Error fetching orders",
-        description: error.message,
-        variant: "destructive",
-      });
-      return [];
-    }
+    // Mock orders data - replace with Firestore integration
+    return [
+      {
+        id: "order-1",
+        status: "completed",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        order_items: [
+          {
+            id: "item-1",
+            product_id: 1,
+            quantity: 2,
+            price_at_purchase: 4.99,
+            created_at: new Date().toISOString()
+          }
+        ]
+      }
+    ];
   };
 
-  // Function to create a new order
   const createOrder = async (items: { productId: number; quantity: number; price: number }[]) => {
     if (!user) return null;
     
     try {
-      // Begin a transaction by inserting a new order
-      const { data: orderData, error: orderError } = await supabase
-        .from('orders')
-        .insert({ user_id: user.id })
-        .select('id')
-        .single();
-      
-      if (orderError) throw orderError;
-      
-      // Insert all order items
-      const orderItems = items.map(item => ({
-        order_id: orderData.id,
-        product_id: item.productId,
-        quantity: item.quantity,
-        price_at_purchase: item.price
-      }));
-      
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
-      
-      if (itemsError) throw itemsError;
+      // Mock order creation - replace with Firestore integration
+      const orderId = `order-${Date.now()}`;
       
       toast({
         title: "Order created successfully",
         description: "Your order has been placed!",
       });
       
-      return orderData.id;
+      return orderId;
     } catch (error: any) {
       toast({
         title: "Error creating order",
@@ -187,11 +167,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={{ 
-      session, 
       user, 
       isLoading, 
       signUp, 
       signIn, 
+      signInWithGoogle,
+      signInWithFacebook,
       signOut, 
       getUserOrders, 
       createOrder 

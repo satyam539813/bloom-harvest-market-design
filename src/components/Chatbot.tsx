@@ -6,7 +6,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 interface ChatMessage {
   id: string;
@@ -64,22 +63,22 @@ const Chatbot = () => {
     setIsTyping(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('chatbot', {
-        body: {
-          prompt: `You are ${botName}, a friendly agricultural assistant. Answer this question about farming, crops, or agriculture: "${inputMessage.trim()}". Be helpful, informative, and conversational. If the question is not related to agriculture, politely redirect to farming topics.`
-        }
-      });
-
-      if (error) throw error;
-
-      if (data?.error) {
-        throw new Error(data.error);
-      }
-
+      // Mock AI response for demo purposes
+      // You can integrate with OpenAI, Gemini, or other AI services here
+      const mockResponses = [
+        "That's a great question about farming! Based on my agricultural knowledge, I'd recommend focusing on soil health and proper irrigation for optimal crop growth.",
+        "For organic farming, it's important to use natural pest control methods and crop rotation to maintain soil fertility.",
+        "The best time to plant depends on your climate zone and the specific crop. Generally, cool-season crops can be planted in early spring.",
+        "Composting is an excellent way to improve soil quality naturally. Mix green materials (nitrogen) with brown materials (carbon) for best results.",
+        "Proper spacing between plants is crucial for good air circulation and preventing disease. Each crop has specific spacing requirements."
+      ];
+      
+      const randomResponse = mockResponses[Math.floor(Math.random() * mockResponses.length)];
+      
       const botResponse: ChatMessage = {
         id: `assistant-${Date.now()}`,
         role: 'assistant',
-        content: data?.reply || "I'm sorry, I couldn't process your request right now. Please try again!",
+        content: randomResponse,
         timestamp: new Date()
       };
 
@@ -95,7 +94,7 @@ const Chatbot = () => {
       const errorMessage: ChatMessage = {
         id: `error-${Date.now()}`,
         role: 'assistant',
-        content: "I'm having trouble connecting right now. Please try again in a moment!",
+        content: "I'm having trouble processing your request right now. Please try again in a moment!",
         timestamp: new Date()
       };
       
@@ -106,7 +105,7 @@ const Chatbot = () => {
       }, 1000);
 
       toast({
-        title: "Connection Error",
+        title: "Processing Error",
         description: "Failed to send message. Please try again.",
         variant: "destructive"
       });
@@ -247,10 +246,10 @@ const Chatbot = () => {
               >
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
-              </Button>
+          {/* Firebase info note */}
+          <div className="mt-6 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-xs text-blue-800">
+              <strong>Powered by Firebase:</strong> Secure authentication with Google and Facebook sign-in options.
             </div>
           </div>
         </Card>
