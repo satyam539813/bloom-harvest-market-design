@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -17,6 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Loader2, Facebook, Mail, Camera, Eye } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Link } from "react-router-dom";
 
@@ -34,7 +36,7 @@ export default function Auth() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [emailSent, setEmailSent] = useState(false);
-  const { user, signIn, signUp, signInWithGoogle, signInWithFacebook } = useAuth();
+  const { user, signIn, signUp } = useAuth();
 
   const form = useForm<FormData>({
     resolver: zodResolver(isLogin ? loginSchema : signupSchema),
@@ -52,6 +54,7 @@ export default function Auth() {
       } else {
         await signUp(data.email, data.password);
         setEmailSent(true);
+        setIsLogin(true);
       }
     } catch (error) {
       console.error("Authentication error:", error);
@@ -60,10 +63,16 @@ export default function Auth() {
     }
   }
 
-  async function handleGoogleSignIn() {
+  async function signInWithGoogle() {
     setSocialLoading("google");
     try {
-      await signInWithGoogle();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`,
+        }
+      });
+      if (error) throw error;
     } catch (error) {
       console.error("Error signing in with Google:", error);
     } finally {
@@ -71,10 +80,16 @@ export default function Auth() {
     }
   }
 
-  async function handleFacebookSignIn() {
+  async function signInWithFacebook() {
     setSocialLoading("facebook");
     try {
-      await signInWithFacebook();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'facebook',
+        options: {
+          redirectTo: `${window.location.origin}/`,
+        }
+      });
+      if (error) throw error;
     } catch (error) {
       console.error("Error signing in with Facebook:", error);
     } finally {
@@ -121,7 +136,7 @@ export default function Auth() {
             <Alert className="mb-6 border-farm-green/20">
               <Mail className="h-4 w-4" />
               <AlertDescription>
-                Account created successfully! You can now sign in with your credentials.
+                Account created! Check your email to verify your account, or sign in directly if email confirmation is disabled.
               </AlertDescription>
             </Alert>
           )}
@@ -130,7 +145,7 @@ export default function Auth() {
             <Button 
               className="w-full flex items-center justify-center gap-2"
               variant="outline"
-              onClick={handleGoogleSignIn}
+              onClick={signInWithGoogle}
               disabled={!!socialLoading}
             >
               {socialLoading === "google" ? (
@@ -161,7 +176,7 @@ export default function Auth() {
             <Button 
               className="w-full flex items-center justify-center gap-2"
               variant="outline"
-              onClick={handleFacebookSignIn}
+              onClick={signInWithFacebook}
               disabled={!!socialLoading}
             >
               {socialLoading === "facebook" ? (
@@ -235,10 +250,10 @@ export default function Auth() {
             </button>
           </div>
 
-          {/* Firebase info note */}
-          <div className="mt-6 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-xs text-blue-800">
-              <strong>Powered by Firebase:</strong> Secure authentication with Google and Facebook sign-in options.
+          {/* Email troubleshooting note */}
+          <div className="mt-6 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-xs text-yellow-800">
+              <strong>Email not working?</strong> You may need to configure email settings in Supabase or disable email confirmation for testing.
             </p>
           </div>
         </div>
