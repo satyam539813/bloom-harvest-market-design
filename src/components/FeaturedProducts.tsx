@@ -49,10 +49,6 @@ const FeaturedProducts = () => {
   const categories = ["all", ...new Set(products.map(product => product.category.toLowerCase()))];
   const handleAddToCart = (product: Product) => {
     addToCart(product);
-    toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart.`
-    });
   };
   const handleToggleFavorite = (product: Product) => {
     if (isFavorite(product.id)) {

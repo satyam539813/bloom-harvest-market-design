@@ -54,11 +54,7 @@ const ProductGrid = ({ activeCategory, activeFilters }: ProductGridProps) => {
 
   const handleAddToCart = async (product: any) => {
     try {
-      await addToCart(product.id);
-      toast({
-        title: "Added to cart",
-        description: `${product.name} has been added to your cart.`,
-      });
+      await addToCart(product);
     } catch (error) {
       console.error("Error adding to cart:", error);
     }

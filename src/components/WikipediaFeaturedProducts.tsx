@@ -138,10 +138,6 @@ const WikipediaFeaturedProducts = () => {
       unit: "lb"
     };
     addToCart(product);
-    toast({
-      title: "Added to cart",
-      description: `${item.title} has been added to your cart.`,
-    });
   };
 
   const handleToggleFavorite = (item: WikipediaPage) => {

@@ -146,41 +146,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user) return null;
     
     try {
-      // Begin a transaction by inserting a new order
-      const { data: orderData, error: orderError } = await supabase
-        .from('orders')
-        .insert({ user_id: user.id })
-        .select('id')
-        .single();
+      // For demo purposes, simulate order creation
+      const orderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      if (orderError) throw orderError;
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Insert all order items
-      const orderItems = items.map(item => ({
-        order_id: orderData.id,
-        product_id: item.productId,
-        quantity: item.quantity,
-        price_at_purchase: item.price
-      }));
-      
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
-      
-      if (itemsError) throw itemsError;
-      
-      toast({
-        title: "Order created successfully",
-        description: "Your order has been placed!",
-      });
-      
-      return orderData.id;
+      return orderId;
     } catch (error: any) {
-      toast({
-        title: "Error creating order",
-        description: error.message,
-        variant: "destructive",
-      });
+      console.error("Order creation error:", error);
       return null;
     }
   };

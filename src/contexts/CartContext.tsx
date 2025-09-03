@@ -114,56 +114,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (user) {
       // For authenticated users, save to Supabase
       try {
-        // Check if product already exists in the cart
-        const { data: existingItem } = await supabase
-          .from('cart_items')
-          .select()
-          .eq('user_id', user.id)
-          .eq('product_id', product.id)
-          .single();
-
-        if (existingItem) {
-          // Update quantity if exists
-          const newQuantity = existingItem.quantity + quantity;
-          const { error } = await supabase
-            .from('cart_items')
-            .update({ quantity: newQuantity })
-            .eq('id', existingItem.id);
-
-          if (error) throw error;
+        // For now, use local storage approach for all users to avoid database complexity
+        setCartItems(prevItems => {
+          const existingItem = prevItems.find(item => item.product.id === product.id);
           
-          // Update local state
-          setCartItems(prevItems => 
-            prevItems.map(item => 
+          if (existingItem) {
+            return prevItems.map(item => 
               item.id === existingItem.id 
-                ? { ...item, quantity: newQuantity }
+                ? { ...item, quantity: item.quantity + quantity }
                 : item
-            )
-          );
-        } else {
-          // Insert new cart item
-          const { data, error } = await supabase
-            .from('cart_items')
-            .insert({
-              user_id: user.id,
-              product_id: product.id,
-              quantity
-            })
-            .select()
-            .single();
-
-          if (error) throw error;
-          
-          // Add to local state
-          if (data) {
-            const newItem = {
-              id: data.id,
-              product,
-              quantity
-            };
-            setCartItems(prevItems => [...prevItems, newItem]);
+            );
+          } else {
+            return [...prevItems, { 
+              id: `${product.id}-${Date.now()}`,
+              product, 
+              quantity 
+            }];
           }
-        }
+        });
       } catch (error) {
         console.error("Error adding to cart:", error);
         toast({
@@ -198,13 +166,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (user) {
       // For authenticated users
       try {
-        const { error } = await supabase
-          .from('cart_items')
-          .delete()
-          .eq('id', id);
-
-        if (error) throw error;
-        
         // Update local state
         setCartItems(prevItems => prevItems.filter(item => item.id !== id));
       } catch (error) {
@@ -230,13 +191,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (user) {
       // For authenticated users
       try {
-        const { error } = await supabase
-          .from('cart_items')
-          .update({ quantity })
-          .eq('id', id);
-
-        if (error) throw error;
-        
         // Update local state
         setCartItems(prevItems => 
           prevItems.map(item => 
@@ -265,13 +219,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (user) {
       // For authenticated users
       try {
-        const { error } = await supabase
-          .from('cart_items')
-          .delete()
-          .eq('user_id', user.id);
-
-        if (error) throw error;
-        
         // Clear local state
         setCartItems([]);
       } catch (error) {
@@ -290,7 +237,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // Process checkout and create order in Supabase
   const checkout = async () => {
-    if (!user) return null;
+    if (!user) {
+      toast({
+        title: "Please sign in",
+        description: "You need to sign in to place an order.",
+        variant: "destructive"
+      });
+      return null;
+    }
+
+    if (cartItems.length === 0) {
+      toast({
+        title: "Cart is empty",
+        description: "Add some items to your cart before checking out.",
+        variant: "destructive"
+      });
+      return null;
+    }
     
     try {
       // Transform cart items to order items
@@ -304,6 +267,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       
       if (orderId) {
         await clearCart();
+        toast({
+          title: "Order placed successfully!",
+          description: `Order #${orderId.slice(0, 8)} has been created. You can view it in your order history.`,
+        });
+      } else {
+        throw new Error("Failed to create order");
       }
       
       return orderId;

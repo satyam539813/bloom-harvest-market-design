@@ -4,6 +4,8 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductGrid from '@/components/ProductGrid';
 import ProductFilters from '@/components/ProductFilters';
+import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -21,13 +23,20 @@ import {
   List, 
   SlidersHorizontal,
   X,
-  Sparkles
+  Sparkles,
+  ShoppingCart,
+  CreditCard
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const Shop = () => {
+  const { cartItems, cartTotal, checkout } = useCart();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   const handleCategoryChange = (category: string | null) => {
     setActiveCategory(category);
@@ -42,6 +51,38 @@ const Shop = () => {
     setActiveFilters({});
   };
 
+  const handleCheckout = async () => {
+    if (!user) {
+      toast({
+        title: "Please sign in",
+        description: "You need to sign in to place an order.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      toast({
+        title: "Cart is empty",
+        description: "Add some items to your cart before checking out.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsCheckingOut(true);
+    try {
+      const orderId = await checkout();
+      if (orderId) {
+        // Redirect to orders page or show success message
+        window.location.href = '/orders';
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
   const activeFilterCount = Object.keys(activeFilters).length + (activeCategory ? 1 : 0);
 
   return (
@@ -168,6 +209,70 @@ const Shop = () => {
             </Sheet>
           </div>
         </div>
+        
+        {/* Cart Summary - Fixed position */}
+        {cartItems.length > 0 && (
+          <div className="fixed bottom-6 right-6 z-40">
+            <div className="bg-card border border-border rounded-2xl shadow-2xl p-6 min-w-[300px] animate-fade-in">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-lg">Cart Summary</h3>
+                <Badge variant="secondary" className="px-3 py-1">
+                  {cartItems.length} item{cartItems.length > 1 ? 's' : ''}
+                </Badge>
+              </div>
+              
+              <div className="space-y-3 mb-4 max-h-32 overflow-y-auto">
+                {cartItems.slice(0, 3).map((item) => (
+                  <div key={item.id} className="flex items-center gap-3 text-sm">
+                    <img 
+                      src={item.product.image_url || "/placeholder.svg"} 
+                      alt={item.product.name}
+                      className="w-8 h-8 rounded object-cover"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="truncate font-medium">{item.product.name}</p>
+                      <p className="text-muted-foreground text-xs">
+                        {item.quantity} × ${item.product.price.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                {cartItems.length > 3 && (
+                  <p className="text-xs text-muted-foreground text-center">
+                    +{cartItems.length - 3} more item{cartItems.length - 3 > 1 ? 's' : ''}
+                  </p>
+                )}
+              </div>
+              
+              <div className="border-t border-border pt-4 space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold">Total:</span>
+                  <span className="font-bold text-lg text-primary">
+                    ${cartTotal.toFixed(2)}
+                  </span>
+                </div>
+                
+                <Button 
+                  onClick={handleCheckout}
+                  disabled={isCheckingOut}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl py-6 font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  {isCheckingOut ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="h-5 w-5 mr-2" />
+                      Place Order
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
         
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Desktop Sidebar */}
