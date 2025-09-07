@@ -277,7 +277,7 @@ const WikipediaFeaturedProducts = () => {
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="text-2xl font-bold text-primary">
-                          ${price.toFixed(2)}
+                          ₹{price.toFixed(2)}
                         </span>
                         <span className="text-sm text-gray-500">/ lb</span>
                       </div>

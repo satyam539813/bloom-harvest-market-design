@@ -154,12 +154,12 @@ const FeaturedProducts = () => {
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="text-2xl font-bold text-farm-green-dark">
-                        ${product.price.toFixed(2)}
+                        ₹{product.price.toFixed(2)}
                       </span>
                       <span className="text-sm text-gray-500">/ {product.unit}</span>
                     </div>
                     {product.discount && product.oldPrice && <span className="text-sm line-through text-gray-400">
-                        ${product.oldPrice.toFixed(2)}
+                        ₹{product.oldPrice.toFixed(2)}
                       </span>}
                   </div>
                   

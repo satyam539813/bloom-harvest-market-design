@@ -57,7 +57,7 @@ const CategoryDetail = ({ categoryId }: CategoryDetailProps) => {
                   <CardContent className="p-4">
                     <h4 className="font-medium mb-1">{product.name}</h4>
                     <div className="flex items-center justify-between">
-                      <span className="font-bold">${product.price} / {product.unit}</span>
+                      <span className="font-bold">₹{product.price} / {product.unit}</span>
                       <Button 
                         variant="link" 
                         className="text-farm-green p-0"

@@ -232,7 +232,7 @@ const Shop = () => {
                     <div className="flex-1 min-w-0">
                       <p className="truncate font-medium">{item.product.name}</p>
                       <p className="text-muted-foreground text-xs">
-                        {item.quantity} × ${item.product.price.toFixed(2)}
+                        {item.quantity} × ₹{item.product.price.toFixed(2)}
                       </p>
                     </div>
                   </div>

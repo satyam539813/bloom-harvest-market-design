@@ -203,8 +203,8 @@ const ProductFilters = ({
               className="mb-4"
             />
             <div className="flex justify-between text-sm text-muted-foreground bg-muted/30 px-3 py-2 rounded-lg">
-              <span className="font-medium">${activeFilters.priceRange ? activeFilters.priceRange[0] : 0}</span>
-              <span className="font-medium">${activeFilters.priceRange ? activeFilters.priceRange[1] : 50}+</span>
+              <span className="font-medium">₹{activeFilters.priceRange ? activeFilters.priceRange[0] : 0}</span>
+              <span className="font-medium">₹{activeFilters.priceRange ? activeFilters.priceRange[1] : 50}+</span>
             </div>
           </div>
         </CollapsibleContent>

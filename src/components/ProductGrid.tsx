@@ -98,11 +98,11 @@ const ProductGrid = ({ activeCategory, activeFilters }: ProductGridProps) => {
                   <p className="text-sm text-farm-green">{product.category}</p>
                   <h3 className="font-semibold text-lg mb-1 text-farm-green-dark">{product.name}</h3>
                   <div className="flex items-center">
-                    <span className="text-xl font-bold">${product.price}</span>
+                    <span className="text-xl font-bold">₹{product.price}</span>
                     <span className="text-sm text-gray-500 ml-1">/ {product.unit}</span>
                     {product.discount && (
                       <span className="ml-2 text-sm line-through text-gray-400">
-                        ${product.oldPrice}
+                        ₹{product.oldPrice}
                       </span>
                     )}
                   </div>
