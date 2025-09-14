@@ -19,7 +19,6 @@ Deno.serve(async (req) => {
       console.error('OPENROUTER_API_KEY is not set in environment variables');
       return new Response(
         JSON.stringify({ 
-          error: 'OpenRouter API key not configured. Please set OPENROUTER_API_KEY in your Supabase edge function secrets.',
           analysis: 'This is a demo analysis. The image appears to show agricultural content. To get real AI analysis, please configure your OpenRouter API key in Supabase.'
         }),
         { 
