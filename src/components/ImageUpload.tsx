@@ -113,7 +113,8 @@ const ImageUpload = () => {
     setAnalysisProgress(0);
     
     try {
-      console.log("Sending image for AI Vision analysis...");
+      console.log("🖼️ Sending image for AI Vision analysis...");
+      console.log("📊 Image data length:", selectedImage?.length);
       
       const { data, error } = await supabase.functions.invoke<ImageAnalysisResult>('analyze-image', {
         body: {
@@ -122,7 +123,8 @@ const ImageUpload = () => {
         }
       });
 
-      console.log("Function response:", { data, error });
+      console.log("📡 Function response:", { data, error });
+      console.log("🔍 Analysis preview:", data?.analysis?.slice(0, 100));
 
       // Complete progress first
       setAnalysisProgress(100);
@@ -130,7 +132,7 @@ const ImageUpload = () => {
       // Handle the response
       setTimeout(() => {
         if (error) {
-          console.error("Supabase function error:", error);
+          console.error("❌ Supabase function error:", error);
           setAnalysisResult(`Demo Analysis Results:
 
 1) Crop Type: Image analysis requires API configuration
@@ -146,12 +148,14 @@ This is a demonstration. For real AI analysis, configure your OpenRouter API key
             description: "Configure OpenRouter API key for real AI analysis.",
           });
         } else if (data?.analysis) {
+          console.log("✅ Setting analysis result");
           setAnalysisResult(data.analysis);
           toast({
             title: "Analysis complete",
             description: "Image has been successfully analyzed with AI vision.",
           });
         } else {
+          console.log("⚠️ No analysis data received:", data);
           // Fallback if no analysis is returned
           setAnalysisResult(`Demo Analysis Results:
 
@@ -168,15 +172,20 @@ This is a demonstration response. For real AI-powered image analysis, please con
             description: "Set up OpenRouter API key for real AI analysis.",
           });
         }
+        
+        setIsAnalyzing(false);
       }, 800);
       
     } catch (error) {
-      console.error("Error analyzing image:", error);
+      console.error("💥 Error analyzing image:", error);
       setAnalysisProgress(0);
-    } finally {
-      setTimeout(() => {
-        setIsAnalyzing(false);
-      }, 800);
+      setIsAnalyzing(false);
+      
+      toast({
+        title: "Analysis failed",
+        description: "An error occurred during image analysis.",
+        variant: "destructive"
+      });
     }
   };
 
