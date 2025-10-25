@@ -12,8 +12,10 @@ Deno.serve(async (req) => {
   try {
     console.log('=== IMAGE ANALYSIS FUNCTION START ===');
     
-    const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
+    const OPENROUTER_API_KEY_RAW = Deno.env.get('OPENROUTER_API_KEY');
+    const OPENROUTER_API_KEY = OPENROUTER_API_KEY_RAW ? OPENROUTER_API_KEY_RAW.trim() : '';
     console.log('OPENROUTER_API_KEY exists:', !!OPENROUTER_API_KEY);
+    console.log('OPENROUTER_API_KEY length:', OPENROUTER_API_KEY ? OPENROUTER_API_KEY.length : 0);
     
     if (!OPENROUTER_API_KEY) {
       console.error('OPENROUTER_API_KEY is not set in environment variables');
@@ -47,7 +49,7 @@ Deno.serve(async (req) => {
         'X-Title': 'FarmFresh Image Analysis',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-exp:free',
+        model: 'google/gemini-2.5-flash',
         messages: [
           {
             role: 'user',
