@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Upload, Eye, Camera, CheckCircle, Sparkles, Cpu, Image as ImageIcon } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import AnalysisChart from "./AnalysisChart";
 
 interface ImageAnalysisResult {
   analysis: string;
@@ -315,50 +316,56 @@ This is a demonstration response. For real AI-powered image analysis, please con
 
       {/* Analysis Results - Seamlessly integrated */}
       {analysisResult && (
-        <div className="p-8 rounded-xl bg-background/30 backdrop-blur-sm border border-border/20 shadow-lg animate-fade-in">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-              <Eye className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="text-2xl font-semibold mb-2">Analysis Results</h3>
-            <p className="text-muted-foreground">
-              AI-powered insights about your image
-            </p>
-          </div>
+        <div className="space-y-6 animate-fade-in">
+          {/* Chart Visualization */}
+          <AnalysisChart analysisText={analysisResult} />
           
-          <div className="bg-background/50 backdrop-blur-sm rounded-xl border border-border/30 p-6 space-y-4">
-            <div className="prose prose-sm max-w-none">
-              {analysisResult.replace(/\*/g, '').trim().split('\n').map((line, index) => {
-                const trimmedLine = line.trim();
-                if (!trimmedLine) return null;
-                
-                // Check if line starts with a number followed by )
-                const isNumberedPoint = /^\d+\)/.test(trimmedLine);
-                
-                if (isNumberedPoint) {
-                  return (
-                    <div key={index} className="flex items-start space-x-3 p-4 rounded-lg bg-background/50 border border-border/50 transition-all duration-500 ease-out hover:bg-background/70 hover:border-primary/30 hover:shadow-md hover:translate-x-1 group/item">
-                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center transition-all duration-300 group-hover/item:bg-primary/20 group-hover/item:scale-110">
-                        <span className="text-xs font-medium text-primary transition-all duration-300">
-                          {trimmedLine.match(/^\d+/)?.[0]}
-                        </span>
+          {/* Detailed Text Results */}
+          <div className="p-8 rounded-xl bg-background/30 backdrop-blur-sm border border-border/20 shadow-lg">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                <Eye className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-2xl font-semibold mb-2">Detailed Analysis</h3>
+              <p className="text-muted-foreground">
+                AI-powered insights about your image
+              </p>
+            </div>
+            
+            <div className="bg-background/50 backdrop-blur-sm rounded-xl border border-border/30 p-6 space-y-4">
+              <div className="prose prose-sm max-w-none">
+                {analysisResult.replace(/\*/g, '').trim().split('\n').map((line, index) => {
+                  const trimmedLine = line.trim();
+                  if (!trimmedLine) return null;
+                  
+                  // Check if line starts with a number followed by )
+                  const isNumberedPoint = /^\d+\)/.test(trimmedLine);
+                  
+                  if (isNumberedPoint) {
+                    return (
+                      <div key={index} className="flex items-start space-x-3 p-4 rounded-lg bg-background/50 border border-border/50 transition-all duration-500 ease-out hover:bg-background/70 hover:border-primary/30 hover:shadow-md hover:translate-x-1 group/item">
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center transition-all duration-300 group-hover/item:bg-primary/20 group-hover/item:scale-110">
+                          <span className="text-xs font-medium text-primary transition-all duration-300">
+                            {trimmedLine.match(/^\d+/)?.[0]}
+                          </span>
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-foreground transition-colors duration-300">
+                            {trimmedLine.replace(/^\d+\)\s*/, '')}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-foreground transition-colors duration-300">
-                          {trimmedLine.replace(/^\d+\)\s*/, '')}
-                        </p>
+                    );
+                  } else if (trimmedLine.length > 0) {
+                    return (
+                      <div key={index} className="ml-8 text-muted-foreground">
+                        {trimmedLine}
                       </div>
-                    </div>
-                  );
-                } else if (trimmedLine.length > 0) {
-                  return (
-                    <div key={index} className="ml-8 text-muted-foreground">
-                      {trimmedLine}
-                    </div>
-                  );
-                }
-                return null;
-              }).filter(Boolean)}
+                    );
+                  }
+                  return null;
+                }).filter(Boolean)}
+              </div>
             </div>
           </div>
         </div>

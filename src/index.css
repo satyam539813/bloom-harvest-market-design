@@ -35,6 +35,13 @@
  
     --radius: 0.5rem;
 
+    /* Chart colors */
+    --chart-1: 142 76% 36%;
+    --chart-2: 197 37% 45%;
+    --chart-3: 173 58% 50%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+
     /* Farm Fresh colors */
     --farm-green: 142.1 76.2% 36.3%;
     --farm-green-dark: 142.1 76.2% 26.3%;
@@ -71,6 +78,13 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 142.1 76.2% 36.3%;
+
+    /* Chart colors - dark mode */
+    --chart-1: 142 70% 45%;
+    --chart-2: 197 37% 55%;
+    --chart-3: 173 58% 60%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
 
     /* Farm Fresh colors - dark mode variations */
     --farm-green: 142.1 70% 45%;
