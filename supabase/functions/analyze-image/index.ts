@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
         'X-Title': 'FarmFresh Image Analysis',
       },
       body: JSON.stringify({
-        model: 'google/gemini-pro-vision',
+        model: 'google/gemini-2.0-flash-exp:free',
         messages: [
           {
             role: 'user',
