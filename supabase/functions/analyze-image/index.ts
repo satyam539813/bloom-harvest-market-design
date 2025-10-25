@@ -62,14 +62,14 @@ Deno.serve(async (req) => {
                 type: 'image_url',
                 image_url: {
                   url: image,
-                  detail: 'high'
+                  detail: 'auto'
                 }
               }
             ]
           }
         ],
-        max_tokens: 500,
-        temperature: 0.3
+        max_tokens: 300,
+        temperature: 0.2
       }),
     });
 

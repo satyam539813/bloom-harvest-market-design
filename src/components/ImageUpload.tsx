@@ -203,10 +203,10 @@ This is a demonstration response. For real AI-powered image analysis, please con
       </div>
 
       <div
-        className={`relative border-2 border-dashed rounded-xl p-8 transition-all duration-300 cursor-pointer group bg-background/50 backdrop-blur-sm ${
+        className={`relative border-2 border-dashed rounded-xl p-8 transition-all duration-500 ease-out cursor-pointer group bg-background/50 backdrop-blur-sm ${
           isDragOver 
-            ? 'border-primary bg-primary/5 scale-[1.02] shadow-lg' 
-            : 'border-muted-foreground/25 hover:border-primary hover:bg-background/80 hover:shadow-md'
+            ? 'border-primary bg-primary/5 scale-[1.02] shadow-lg shadow-primary/20' 
+            : 'border-muted-foreground/25 hover:border-primary/60 hover:bg-background/80 hover:shadow-md hover:scale-[1.01]'
         }`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -222,10 +222,10 @@ This is a demonstration response. For real AI-powered image analysis, please con
         />
         
         <div className="text-center space-y-4">
-          <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full transition-all duration-300 ${
-            isDragOver ? 'bg-primary text-primary-foreground scale-110' : 'bg-muted text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground'
+          <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full transition-all duration-500 ease-out ${
+            isDragOver ? 'bg-primary text-primary-foreground scale-110 rotate-12' : 'bg-muted text-muted-foreground group-hover:bg-primary/80 group-hover:text-primary-foreground group-hover:scale-105'
           }`}>
-            <Upload className="h-10 w-10" />
+            <Upload className={`h-10 w-10 transition-transform duration-300 ${isDragOver ? 'translate-y-[-2px]' : 'group-hover:translate-y-[-1px]'}`} />
           </div>
           
           <div>
@@ -243,11 +243,11 @@ This is a demonstration response. For real AI-powered image analysis, please con
       {selectedImage && (
         <div className="space-y-8 animate-fade-in">
           {/* Image Preview - Seamlessly integrated */}
-          <div className="aspect-video bg-background/30 backdrop-blur-sm rounded-xl overflow-hidden border border-border/20 shadow-lg">
+          <div className="aspect-video bg-background/30 backdrop-blur-sm rounded-xl overflow-hidden border border-border/20 shadow-lg hover:shadow-xl transition-all duration-500 group/preview">
             <img 
               src={selectedImage} 
               alt="Selected preview" 
-              className="w-full h-full object-contain transition-transform duration-500 hover:scale-105"
+              className="w-full h-full object-contain transition-all duration-700 ease-out group-hover/preview:scale-105"
             />
           </div>
           
@@ -295,7 +295,7 @@ This is a demonstration response. For real AI-powered image analysis, please con
           {/* Analyze Button - Blended style */}
           <Button 
             onClick={analyzeImage} 
-            className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] rounded-xl"
+            className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] rounded-xl group/btn"
             disabled={isAnalyzing}
           >
             {isAnalyzing ? (
@@ -305,7 +305,7 @@ This is a demonstration response. For real AI-powered image analysis, please con
               </>
             ) : (
               <>
-                <Eye className="mr-3 h-6 w-6" />
+                <Eye className="mr-3 h-6 w-6 transition-transform duration-300 group-hover/btn:scale-110" />
                 Analyze Image with AI
               </>
             )}
@@ -337,14 +337,14 @@ This is a demonstration response. For real AI-powered image analysis, please con
                 
                 if (isNumberedPoint) {
                   return (
-                    <div key={index} className="flex items-start space-x-3 p-4 rounded-lg bg-background/50 border border-border/50 transition-all duration-300 hover:bg-background/70 hover:border-primary/20">
-                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="text-xs font-medium text-primary">
+                    <div key={index} className="flex items-start space-x-3 p-4 rounded-lg bg-background/50 border border-border/50 transition-all duration-500 ease-out hover:bg-background/70 hover:border-primary/30 hover:shadow-md hover:translate-x-1 group/item">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center transition-all duration-300 group-hover/item:bg-primary/20 group-hover/item:scale-110">
+                        <span className="text-xs font-medium text-primary transition-all duration-300">
                           {trimmedLine.match(/^\d+/)?.[0]}
                         </span>
                       </div>
                       <div className="flex-1">
-                        <p className="font-medium text-foreground">
+                        <p className="font-medium text-foreground transition-colors duration-300">
                           {trimmedLine.replace(/^\d+\)\s*/, '')}
                         </p>
                       </div>
