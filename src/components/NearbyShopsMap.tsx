@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import { Icon } from 'leaflet';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -8,9 +8,9 @@ import { MapPin, Navigation, Store, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
-// Fix Leaflet icon issue
-delete (Icon.Default.prototype as any)._getIconUrl;
-Icon.Default.mergeOptions({
+// Fix Leaflet default icon issue
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
@@ -96,6 +96,8 @@ const NearbyShopsMap = () => {
   const discoverShops = async (coords: [number, number]) => {
     setIsLoadingShops(true);
     try {
+      console.log('Calling discover-shops function with coords:', coords);
+      
       const { data, error } = await supabase.functions.invoke('discover-shops', {
         body: { 
           latitude: coords[0], 
@@ -103,7 +105,12 @@ const NearbyShopsMap = () => {
         }
       });
 
-      if (error) throw error;
+      console.log('Response from discover-shops:', { data, error });
+
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
 
       if (data?.shops) {
         const shopsWithDistance = data.shops.map((shop: any) => ({
@@ -111,10 +118,18 @@ const NearbyShopsMap = () => {
           distance: calculateDistance(coords[0], coords[1], shop.lat, shop.lng)
         })).sort((a: Shop, b: Shop) => a.distance - b.distance);
         
+        console.log('Processed shops:', shopsWithDistance);
         setShops(shopsWithDistance);
         toast({
           title: "Shops discovered",
           description: `Found ${shopsWithDistance.length} nearby farm shops`,
+        });
+      } else {
+        console.warn('No shops in response:', data);
+        toast({
+          title: "No shops found",
+          description: "Could not find nearby shops. Please try again.",
+          variant: "destructive",
         });
       }
     } catch (error) {
@@ -162,6 +177,7 @@ const NearbyShopsMap = () => {
               center={userLocation}
               zoom={13}
               style={{ height: '100%', width: '100%' }}
+              scrollWheelZoom={true}
             >
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -195,6 +211,13 @@ const NearbyShopsMap = () => {
                 </Marker>
               ))}
             </MapContainer>
+          </div>
+        )}
+
+        {!userLocation && (
+          <div className="text-center py-12 text-muted-foreground">
+            <MapPin className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p>Click "Find Nearby Shops" to see farm shops near you</p>
           </div>
         )}
       </Card>
