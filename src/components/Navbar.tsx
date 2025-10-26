@@ -16,7 +16,8 @@ import {
   Store,
   Phone,
   Info,
-  Package
+  Package,
+  MapPin
 } from "lucide-react";
 
 const Navbar = () => {
@@ -41,6 +42,7 @@ const Navbar = () => {
     { path: "/", label: "Home", icon: Home },
     { path: "/shop", label: "Shop", icon: Store },
     { path: "/image-analysis", label: "AI Vision", icon: Eye },
+    { path: "/nearby-shops", label: "Near Me", icon: MapPin },
     { path: "/about", label: "About", icon: Info },
     { path: "/contact", label: "Contact", icon: Phone },
   ];

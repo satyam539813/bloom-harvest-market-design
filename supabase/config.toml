@@ -1,4 +1,3 @@
-
 project_id = "sfjkeczihhgrvfqrbudn"
 
 [api]
@@ -44,3 +43,12 @@ backend = "postgres"
 
 [experimental]
 pubsub = false
+
+[functions.analyze-image]
+verify_jwt = false
+
+[functions.chatbot]
+verify_jwt = false
+
+[functions.discover-shops]
+verify_jwt = false
