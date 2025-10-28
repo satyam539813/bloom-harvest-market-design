@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import React, { useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Button } from '@/components/ui/button';
@@ -26,15 +26,6 @@ interface Shop {
   description: string;
 }
 
-// Component to update map center
-function MapUpdater({ center }: { center: [number, number] }) {
-  const map = useMap();
-  useEffect(() => {
-    map.setView(center, 13);
-  }, [center, map]);
-  return null;
-}
-
 // Calculate distance using Haversine formula
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371; // Earth's radius in km
@@ -59,7 +50,7 @@ const NearbyShopsMap = () => {
     setIsLoadingLocation(true);
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const coords: [number, number] = [position.coords.latitude, position.coords.longitude];
           setUserLocation(coords);
           setIsLoadingLocation(false);
@@ -67,7 +58,7 @@ const NearbyShopsMap = () => {
             title: "Location found",
             description: "Finding nearby shops...",
           });
-          discoverShops(coords);
+          await discoverShops(coords);
         },
         (error) => {
           console.error('Error getting location:', error);
@@ -80,7 +71,7 @@ const NearbyShopsMap = () => {
           // Default to a sample location
           const defaultCoords: [number, number] = [51.5074, -0.1278]; // London
           setUserLocation(defaultCoords);
-          discoverShops(defaultCoords);
+          discoverShops(defaultCoords).catch(console.error);
         }
       );
     } else {
@@ -112,11 +103,19 @@ const NearbyShopsMap = () => {
         throw error;
       }
 
-      if (data?.shops) {
-        const shopsWithDistance = data.shops.map((shop: any) => ({
-          ...shop,
-          distance: calculateDistance(coords[0], coords[1], shop.lat, shop.lng)
-        })).sort((a: Shop, b: Shop) => a.distance - b.distance);
+      if (data?.shops && Array.isArray(data.shops)) {
+        const shopsWithDistance = data.shops
+          .filter((shop: any) => shop && typeof shop === 'object' && shop.lat && shop.lng)
+          .map((shop: any) => ({
+            id: shop.id || Math.random().toString(),
+            name: shop.name || 'Unknown Shop',
+            address: shop.address || 'No address',
+            lat: Number(shop.lat),
+            lng: Number(shop.lng),
+            description: shop.description || 'No description',
+            distance: calculateDistance(coords[0], coords[1], Number(shop.lat), Number(shop.lng))
+          }))
+          .sort((a: Shop, b: Shop) => a.distance - b.distance);
         
         console.log('Processed shops:', shopsWithDistance);
         setShops(shopsWithDistance);
@@ -174,6 +173,7 @@ const NearbyShopsMap = () => {
         {userLocation && (
           <div className="rounded-lg overflow-hidden border border-border" style={{ height: '500px' }}>
             <MapContainer
+              key={`${userLocation[0]}-${userLocation[1]}`}
               center={userLocation}
               zoom={13}
               style={{ height: '100%', width: '100%' }}
@@ -183,7 +183,6 @@ const NearbyShopsMap = () => {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              <MapUpdater center={userLocation} />
               
               {/* User location marker */}
               <Marker position={userLocation}>
