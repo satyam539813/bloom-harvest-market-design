@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -44,7 +44,19 @@ const NearbyShopsMap = () => {
   const [shops, setShops] = useState<Shop[]>([]);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [isLoadingShops, setIsLoadingShops] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
   const { toast } = useToast();
+
+  // Add a small delay before showing the map to ensure DOM is ready
+  useEffect(() => {
+    if (userLocation) {
+      setMapReady(false);
+      const timer = setTimeout(() => {
+        setMapReady(true);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [userLocation]);
 
   const getUserLocation = () => {
     setIsLoadingLocation(true);
@@ -170,10 +182,9 @@ const NearbyShopsMap = () => {
           </Button>
         </div>
 
-        {userLocation && (
+        {userLocation && mapReady && (
           <div className="rounded-lg overflow-hidden border border-border" style={{ height: '500px' }}>
             <MapContainer
-              key={`${userLocation[0]}-${userLocation[1]}`}
               center={userLocation}
               zoom={13}
               style={{ height: '100%', width: '100%' }}
@@ -210,6 +221,13 @@ const NearbyShopsMap = () => {
                 </Marker>
               ))}
             </MapContainer>
+          </div>
+        )}
+
+        {userLocation && !mapReady && (
+          <div className="rounded-lg border border-border p-12 text-center" style={{ height: '500px' }}>
+            <Loader2 className="w-12 h-12 mx-auto mb-4 animate-spin text-primary" />
+            <p className="text-muted-foreground">Loading map...</p>
           </div>
         )}
 
