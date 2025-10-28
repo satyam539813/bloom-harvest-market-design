@@ -127,6 +127,19 @@ const NearbyShopsMap = () => {
     }
   };
 
+  const openDirections = (shopLat: number, shopLng: number, shopName: string) => {
+    if (userLocation) {
+      const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation[0]},${userLocation[1]}&destination=${shopLat},${shopLng}&travelmode=driving`;
+      window.open(url, '_blank');
+    } else {
+      toast({
+        title: "Location required",
+        description: "Please enable location to get directions.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const discoverShops = async (coords: [number, number]) => {
     setIsLoadingShops(true);
     try {
@@ -289,7 +302,13 @@ const NearbyShopsMap = () => {
                     <MapPin className="w-4 h-4" />
                     <span>{shop.distance.toFixed(1)} km</span>
                   </div>
-                  <Button size="sm" variant="outline">Get Directions</Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => openDirections(shop.lat, shop.lng, shop.name)}
+                  >
+                    Get Directions
+                  </Button>
                 </div>
               </Card>
             ))}
