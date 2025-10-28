@@ -8,13 +8,19 @@ import { MapPin, Navigation, Store, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
-// Fix Leaflet default icon issue
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
+// Fix Leaflet default icon issue (guarded)
+if ((L as any).Icon?.Default) {
+  try {
+    delete (L.Icon.Default.prototype as any)._getIconUrl;
+  } catch {
+    // ignore
+  }
+  (L.Icon.Default as any).mergeOptions({
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  });
+}
 
 interface Shop {
   id: string;
@@ -24,6 +30,31 @@ interface Shop {
   lng: number;
   distance: number;
   description: string;
+}
+
+// Error boundary to prevent full-page crash from map errors
+class MapErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error: any) {
+    console.error('Map render error:', error);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="rounded-lg border border-border p-12 text-center" style={{ height: '500px' }}>
+          <p className="text-muted-foreground mb-4">We couldn't load the map.</p>
+          <Button size="sm" onClick={() => this.setState({ hasError: false })}>Retry</Button>
+        </div>
+      );
+    }
+    return this.props.children as any;
+  }
 }
 
 // Calculate distance using Haversine formula
@@ -183,45 +214,47 @@ const NearbyShopsMap = () => {
         </div>
 
         {userLocation && mapReady && (
-          <div className="rounded-lg overflow-hidden border border-border" style={{ height: '500px' }}>
-            <MapContainer
-              center={userLocation}
-              zoom={13}
-              style={{ height: '100%', width: '100%' }}
-              scrollWheelZoom={true}
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              
-              {/* User location marker */}
-              <Marker position={userLocation}>
-                <Popup>
-                  <div className="text-center">
-                    <strong>Your Location</strong>
-                  </div>
-                </Popup>
-              </Marker>
-
-              {/* Shop markers */}
-              {shops.map((shop) => (
-                <Marker key={shop.id} position={[shop.lat, shop.lng]}>
+          <MapErrorBoundary>
+            <div className="rounded-lg overflow-hidden border border-border" style={{ height: '500px' }}>
+              <MapContainer
+                center={userLocation}
+                zoom={13}
+                style={{ height: '100%', width: '100%' }}
+                scrollWheelZoom={true}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                
+                {/* User location marker */}
+                <Marker position={userLocation}>
                   <Popup>
-                    <div className="min-w-[200px]">
-                      <h3 className="font-semibold text-lg mb-1">{shop.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">{shop.address}</p>
-                      <p className="text-sm mb-2">{shop.description}</p>
-                      <div className="flex items-center gap-1 text-primary font-medium">
-                        <MapPin className="w-4 h-4" />
-                        <span>{shop.distance.toFixed(1)} km away</span>
-                      </div>
+                    <div className="text-center">
+                      <strong>Your Location</strong>
                     </div>
                   </Popup>
                 </Marker>
-              ))}
-            </MapContainer>
-          </div>
+
+                {/* Shop markers */}
+                {shops.map((shop) => (
+                  <Marker key={shop.id} position={[shop.lat, shop.lng]}>
+                    <Popup>
+                      <div className="min-w-[200px]">
+                        <h3 className="font-semibold text-lg mb-1">{shop.name}</h3>
+                        <p className="text-sm text-muted-foreground mb-2">{shop.address}</p>
+                        <p className="text-sm mb-2">{shop.description}</p>
+                        <div className="flex items-center gap-1 text-primary font-medium">
+                          <MapPin className="w-4 h-4" />
+                          <span>{shop.distance.toFixed(1)} km away</span>
+                        </div>
+                      </div>
+                    </Popup>
+                  </Marker>
+                ))}
+              </MapContainer>
+            </div>
+          </MapErrorBoundary>
         )}
 
         {userLocation && !mapReady && (
