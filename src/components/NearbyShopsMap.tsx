@@ -1,20 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { MapPin, Navigation, Store, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
-// Fix Leaflet default icon issue
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
+const Map = lazy(() => import('./Map'));
 
 interface Shop {
   id: string;
@@ -186,44 +177,13 @@ const NearbyShopsMap = () => {
 
         {userLocation && (
           <div className="rounded-lg overflow-hidden border border-border" style={{ height: '500px' }}>
-            <MapContainer
-              key={`${userLocation[0]}-${userLocation[1]}`}
-              center={userLocation}
-              zoom={13}
-              style={{ height: '100%', width: '100%' }}
-              scrollWheelZoom={true}
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              
-              {/* User location marker */}
-              <Marker position={userLocation}>
-                <Popup>
-                  <div className="text-center">
-                    <strong>Your Location</strong>
-                  </div>
-                </Popup>
-              </Marker>
-
-              {/* Shop markers */}
-              {shops.map((shop) => (
-                <Marker key={shop.id} position={[shop.lat, shop.lng]}>
-                  <Popup>
-                    <div className="min-w-[200px]">
-                      <h3 className="font-semibold text-lg mb-1">{shop.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">{shop.address}</p>
-                      <p className="text-sm mb-2">{shop.description}</p>
-                      <div className="flex items-center gap-1 text-primary font-medium">
-                        <MapPin className="w-4 h-4" />
-                        <span>{shop.distance.toFixed(1)} km away</span>
-                      </div>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-full">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            }>
+              <Map center={userLocation} shops={shops} />
+            </Suspense>
           </div>
         )}
 
