@@ -182,7 +182,7 @@ const NearbyShopsMap = () => {
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
             }>
-              <Map center={userLocation} shops={shops} />
+              <Map key={`${userLocation[0]},${userLocation[1]}`} center={userLocation} shops={shops} />
             </Suspense>
           </div>
         )}

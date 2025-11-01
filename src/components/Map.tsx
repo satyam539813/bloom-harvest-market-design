@@ -1,15 +1,4 @@
-import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-
-// Fix default marker icons
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
+import React, { useEffect, useState } from 'react';
 
 interface Shop {
   id: string;
@@ -26,9 +15,60 @@ interface MapProps {
   shops: Shop[];
 }
 
+// Client-only dynamic loader for Leaflet/react-leaflet to avoid bundling/runtime issues
 const Map: React.FC<MapProps> = ({ center, shops }) => {
+  const [leafletComponents, setLeafletComponents] = useState<any>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        // Load CSS and libs only on client
+        await import('leaflet/dist/leaflet.css');
+        const [leafletModule, reactLeaflet] = await Promise.all([
+          import('leaflet'),
+          import('react-leaflet'),
+        ]);
+        const L = leafletModule.default || (leafletModule as any);
+
+        // Fix default marker icons
+        try {
+          delete (L.Icon.Default.prototype as any)._getIconUrl;
+          L.Icon.Default.mergeOptions({
+            iconRetinaUrl:
+              'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+            iconUrl:
+              'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+            shadowUrl:
+              'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+          });
+        } catch (e) {
+          console.warn('Leaflet icon setup warning:', e);
+        }
+
+        if (mounted) setLeafletComponents(reactLeaflet);
+      } catch (e) {
+        console.error('Failed to load map libraries:', e);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  if (!leafletComponents) {
+    return (
+      <div className="flex items-center justify-center h-full text-muted-foreground">
+        Loading map...
+      </div>
+    );
+  }
+
+  const { MapContainer, TileLayer, Marker, Popup } = leafletComponents;
+
   return (
     <MapContainer
+      key={`${center[0]},${center[1]}`}
       center={center}
       zoom={13}
       style={{ height: '100%', width: '100%' }}
@@ -38,7 +78,7 @@ const Map: React.FC<MapProps> = ({ center, shops }) => {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      
+
       {/* User location marker */}
       <Marker position={center}>
         <Popup>
