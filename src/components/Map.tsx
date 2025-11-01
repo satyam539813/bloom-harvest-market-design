@@ -99,6 +99,7 @@ const Map: React.FC<MapProps> = ({ center, shops }) => {
           </div>
         </div>`;
       marker.bindPopup(popupHtml);
+      marker.bindTooltip(shop.name, { permanent: false, direction: 'top' });
     });
   }, [shops, center]);
 
