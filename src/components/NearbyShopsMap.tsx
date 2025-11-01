@@ -1,6 +1,7 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { MapPin, Navigation, Store, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,6 +37,11 @@ const NearbyShopsMap = () => {
   const [shops, setShops] = useState<Shop[]>([]);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [isLoadingShops, setIsLoadingShops] = useState(false);
+  const [directionsDialog, setDirectionsDialog] = useState<{ open: boolean; url: string; shopName: string }>({
+    open: false,
+    url: '',
+    shopName: ''
+  });
   const { toast } = useToast();
 
   const getUserLocation = () => {
@@ -78,8 +84,8 @@ const NearbyShopsMap = () => {
 
   const openDirections = (shopLat: number, shopLng: number, shopName: string) => {
     if (userLocation) {
-      const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation[0]},${userLocation[1]}&destination=${shopLat},${shopLng}&travelmode=driving`;
-      window.open(url, '_blank');
+      const url = `https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=${userLocation[0]},${userLocation[1]}&destination=${shopLat},${shopLng}&mode=driving`;
+      setDirectionsDialog({ open: true, url, shopName });
     } else {
       toast({
         title: "Location required",
@@ -225,6 +231,26 @@ const NearbyShopsMap = () => {
           </div>
         </Card>
       )}
+
+      <Dialog open={directionsDialog.open} onOpenChange={(open) => setDirectionsDialog({ ...directionsDialog, open })}>
+        <DialogContent className="max-w-4xl h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>Directions to {directionsDialog.shopName}</DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 h-full">
+            <iframe
+              src={directionsDialog.url}
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="rounded-lg"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
