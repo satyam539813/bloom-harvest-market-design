@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 interface Shop {
   id: string;
@@ -15,100 +17,92 @@ interface MapProps {
   shops: Shop[];
 }
 
-// Client-only dynamic loader for Leaflet/react-leaflet to avoid bundling/runtime issues
+// Imperative Leaflet map (avoids react-leaflet runtime issues)
 const Map: React.FC<MapProps> = ({ center, shops }) => {
-  const [leafletComponents, setLeafletComponents] = useState<any>(null);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const markersLayerRef = useRef<L.LayerGroup | null>(null);
 
+  // Initialize map once
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        // Load CSS and libs only on client
-        await import('leaflet/dist/leaflet.css');
-        const [leafletModule, reactLeaflet] = await Promise.all([
-          import('leaflet'),
-          import('react-leaflet'),
-        ]);
-        const L = leafletModule.default || (leafletModule as any);
+    if (!mapContainerRef.current || mapRef.current) return;
 
-        // Fix default marker icons
-        try {
-          delete (L.Icon.Default.prototype as any)._getIconUrl;
-          L.Icon.Default.mergeOptions({
-            iconRetinaUrl:
-              'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-            iconUrl:
-              'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-            shadowUrl:
-              'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-          });
-        } catch (e) {
-          console.warn('Leaflet icon setup warning:', e);
-        }
+    // Fix default marker icons
+    try {
+      // @ts-ignore - private prop used by Leaflet for asset resolution
+      delete L.Icon.Default.prototype._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl:
+          'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconUrl:
+          'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl:
+          'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      });
+    } catch (e) {
+      console.warn('Leaflet icon setup warning:', e);
+    }
 
-        if (mounted) setLeafletComponents(reactLeaflet);
-      } catch (e) {
-        console.error('Failed to load map libraries:', e);
-      }
-    })();
+    const map = L.map(mapContainerRef.current, {
+      center,
+      zoom: 13,
+      scrollWheelZoom: true,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    const markersLayer = L.layerGroup().addTo(map);
+
+    mapRef.current = map;
+    markersLayerRef.current = markersLayer;
+
     return () => {
-      mounted = false;
+      map.remove();
+      mapRef.current = null;
+      markersLayerRef.current = null;
     };
-  }, []);
+  }, [center]);
 
-  if (!leafletComponents) {
-    return (
-      <div className="flex items-center justify-center h-full text-muted-foreground">
-        Loading map...
-      </div>
+  // Update center
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.setView(center, mapRef.current.getZoom());
+    }
+  }, [center]);
+
+  // Update markers when shops or center change
+  useEffect(() => {
+    const map = mapRef.current;
+    const layer = markersLayerRef.current;
+    if (!map || !layer) return;
+
+    layer.clearLayers();
+
+    // User location
+    L.marker(center).addTo(layer).bindPopup(
+      '<div style="text-align:center"><strong>Your Location</strong></div>'
     );
-  }
 
-  const { MapContainer, TileLayer, Marker, Popup } = leafletComponents;
-
-  return (
-    <MapContainer
-      key={`${center[0]},${center[1]}`}
-      center={center}
-      zoom={13}
-      style={{ height: '100%', width: '100%' }}
-      scrollWheelZoom={true}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-
-      {/* User location marker */}
-      <Marker position={center}>
-        <Popup>
-          <div className="text-center">
-            <strong>Your Location</strong>
+    // Shops
+    shops.forEach((shop) => {
+      const marker = L.marker([shop.lat, shop.lng]).addTo(layer);
+      const popupHtml = `
+        <div style="min-width:200px">
+          <div style="font-weight:600; font-size:1.125rem; margin-bottom:0.25rem">${shop.name}</div>
+          <div style="font-size:0.875rem; opacity:0.7; margin-bottom:0.5rem">${shop.address}</div>
+          <div style="font-size:0.875rem; margin-bottom:0.5rem">${shop.description}</div>
+          <div style="display:flex; align-items:center; gap:4px; color:var(--primary)">
+            <span>${shop.distance.toFixed(1)} km away</span>
           </div>
-        </Popup>
-      </Marker>
+        </div>`;
+      marker.bindPopup(popupHtml);
+    });
+  }, [shops, center]);
 
-      {/* Shop markers */}
-      {shops.map((shop) => (
-        <Marker key={shop.id} position={[shop.lat, shop.lng]}>
-          <Popup>
-            <div className="min-w-[200px]">
-              <h3 className="font-semibold text-lg mb-1">{shop.name}</h3>
-              <p className="text-sm text-muted-foreground mb-2">{shop.address}</p>
-              <p className="text-sm mb-2">{shop.description}</p>
-              <div className="flex items-center gap-1 text-primary font-medium">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span>{shop.distance.toFixed(1)} km away</span>
-              </div>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
-  );
+  return <div ref={mapContainerRef} style={{ height: '100%', width: '100%' }} />;
 };
 
 export default Map;
