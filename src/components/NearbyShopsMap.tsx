@@ -2,10 +2,11 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { MapPin, Navigation, Store, Loader2, TrendingUp } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MapPin, Navigation, Store, Loader2, TrendingUp, Award, DollarSign, Heart, Leaf, ShoppingBag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 
 const Map = lazy(() => import('./Map'));
 
@@ -17,6 +18,11 @@ interface Shop {
   lng: number;
   distance: number;
   description: string;
+  qualityScore?: number;
+  priceCompetitiveness?: number;
+  popularityScore?: number;
+  environmentalScore?: number;
+  varietyScore?: number;
 }
 
 
@@ -207,55 +213,195 @@ const NearbyShopsMap = () => {
           <Card className="p-6">
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-semibold text-foreground">Cost Analysis</h2>
+              <h2 className="text-xl font-semibold text-foreground">AI-Powered Shop Analysis</h2>
             </div>
             <p className="text-sm text-muted-foreground mb-6">
-              Estimated travel costs based on distance (assuming ₹8 per km for fuel)
+              Comprehensive analysis of nearby farm shops using OpenRouter AI
             </p>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart
-                data={shops.map(shop => ({
-                  name: shop.name.length > 20 ? shop.name.substring(0, 20) + '...' : shop.name,
-                  distance: Number(shop.distance.toFixed(1)),
-                  cost: Number((shop.distance * 8).toFixed(2)),
-                  fullName: shop.name
-                }))}
-                margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="name" 
-                  angle={-45}
-                  textAnchor="end"
-                  height={100}
-                  className="text-xs fill-muted-foreground"
-                />
-                <YAxis 
-                  className="text-xs fill-muted-foreground"
-                  label={{ value: 'Cost (₹)', angle: -90, position: 'insideLeft' }}
-                />
-                <Tooltip 
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      const data = payload[0].payload;
-                      return (
-                        <div className="bg-background border border-border p-3 rounded-lg shadow-lg">
-                          <p className="font-semibold mb-1">{data.fullName}</p>
-                          <p className="text-sm text-muted-foreground">Distance: {data.distance} km</p>
-                          <p className="text-sm font-medium text-primary">Travel Cost: ₹{data.cost}</p>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <Bar dataKey="cost" radius={[8, 8, 0, 0]}>
-                  {shops.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={`hsl(var(--primary) / ${1 - (index * 0.15)})`} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            
+            <Tabs defaultValue="cost" className="w-full">
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="cost">
+                  <DollarSign className="w-4 h-4 mr-2" />
+                  Cost
+                </TabsTrigger>
+                <TabsTrigger value="quality">
+                  <Award className="w-4 h-4 mr-2" />
+                  Quality
+                </TabsTrigger>
+                <TabsTrigger value="environment">
+                  <Leaf className="w-4 h-4 mr-2" />
+                  Eco Score
+                </TabsTrigger>
+                <TabsTrigger value="popularity">
+                  <Heart className="w-4 h-4 mr-2" />
+                  Popular
+                </TabsTrigger>
+                <TabsTrigger value="comparison">
+                  <ShoppingBag className="w-4 h-4 mr-2" />
+                  Compare
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="cost" className="mt-6">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={shops.map(shop => ({
+                      name: shop.name.length > 15 ? shop.name.substring(0, 15) + '...' : shop.name,
+                      travelCost: Number((shop.distance * 8).toFixed(2)),
+                      priceScore: shop.priceCompetitiveness || 5,
+                      fullName: shop.name
+                    }))}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="name" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={100}
+                      className="text-xs fill-muted-foreground"
+                    />
+                    <YAxis className="text-xs fill-muted-foreground" />
+                    <Tooltip 
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload;
+                          return (
+                            <div className="bg-background border border-border p-3 rounded-lg shadow-lg">
+                              <p className="font-semibold mb-1">{data.fullName}</p>
+                              <p className="text-sm text-primary">Travel Cost: ₹{data.travelCost}</p>
+                              <p className="text-sm text-green-600">Price Score: {data.priceScore}/10</p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Legend />
+                    <Bar dataKey="travelCost" name="Travel Cost (₹)" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="priceScore" name="Price Score (1-10)" fill="hsl(var(--chart-2))" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </TabsContent>
+
+              <TabsContent value="quality" className="mt-6">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={shops.map(shop => ({
+                      name: shop.name.length > 15 ? shop.name.substring(0, 15) + '...' : shop.name,
+                      quality: shop.qualityScore || 5,
+                      variety: shop.varietyScore || 5,
+                      fullName: shop.name
+                    }))}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="name" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={100}
+                      className="text-xs fill-muted-foreground"
+                    />
+                    <YAxis domain={[0, 10]} className="text-xs fill-muted-foreground" />
+                    <Tooltip 
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload;
+                          return (
+                            <div className="bg-background border border-border p-3 rounded-lg shadow-lg">
+                              <p className="font-semibold mb-1">{data.fullName}</p>
+                              <p className="text-sm">Quality: {data.quality}/10</p>
+                              <p className="text-sm">Variety: {data.variety}/10</p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Legend />
+                    <Bar dataKey="quality" name="Quality Score" fill="hsl(var(--chart-1))" radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="variety" name="Product Variety" fill="hsl(var(--chart-3))" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </TabsContent>
+
+              <TabsContent value="environment" className="mt-6">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={shops.map(shop => ({
+                      name: shop.name.length > 15 ? shop.name.substring(0, 15) + '...' : shop.name,
+                      score: shop.environmentalScore || 5,
+                      fullName: shop.name
+                    }))}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="name" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={100}
+                      className="text-xs fill-muted-foreground"
+                    />
+                    <YAxis domain={[0, 10]} className="text-xs fill-muted-foreground" />
+                    <Tooltip />
+                    <Bar dataKey="score" name="Environmental Score" fill="hsl(var(--chart-4))" radius={[8, 8, 0, 0]}>
+                      {shops.map((shop, index) => (
+                        <Cell key={`cell-${index}`} fill={`hsl(${120 - (shop.environmentalScore || 5) * 12}, 70%, 50%)`} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </TabsContent>
+
+              <TabsContent value="popularity" className="mt-6">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={shops.map(shop => ({
+                      name: shop.name.length > 15 ? shop.name.substring(0, 15) + '...' : shop.name,
+                      score: shop.popularityScore || 5,
+                      fullName: shop.name
+                    }))}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="name" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={100}
+                      className="text-xs fill-muted-foreground"
+                    />
+                    <YAxis domain={[0, 10]} className="text-xs fill-muted-foreground" />
+                    <Tooltip />
+                    <Bar dataKey="score" name="Popularity Score" fill="hsl(var(--chart-5))" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </TabsContent>
+
+              <TabsContent value="comparison" className="mt-6">
+                <ResponsiveContainer width="100%" height={400}>
+                  <RadarChart data={shops.slice(0, 5).map(shop => ({
+                    shop: shop.name.length > 12 ? shop.name.substring(0, 12) + '...' : shop.name,
+                    Quality: shop.qualityScore || 5,
+                    Price: shop.priceCompetitiveness || 5,
+                    Popularity: shop.popularityScore || 5,
+                    Eco: shop.environmentalScore || 5,
+                    Variety: shop.varietyScore || 5,
+                  }))}>
+                    <PolarGrid />
+                    <PolarAngleAxis dataKey="shop" className="text-xs" />
+                    <PolarRadiusAxis domain={[0, 10]} />
+                    <Radar name="Scores" dataKey="Quality" stroke="hsl(var(--chart-1))" fill="hsl(var(--chart-1))" fillOpacity={0.3} />
+                    <Radar name="Price" dataKey="Price" stroke="hsl(var(--chart-2))" fill="hsl(var(--chart-2))" fillOpacity={0.3} />
+                    <Radar name="Popularity" dataKey="Popularity" stroke="hsl(var(--chart-3))" fill="hsl(var(--chart-3))" fillOpacity={0.3} />
+                    <Tooltip />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </TabsContent>
+            </Tabs>
           </Card>
 
           <Card className="p-6">
@@ -270,7 +416,7 @@ const NearbyShopsMap = () => {
                   <p className="text-sm text-muted-foreground mb-2">{shop.address}</p>
                   <p className="text-sm mb-3">{shop.description}</p>
                   <div className="flex items-center justify-between">
-                    <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1 flex-1">
                       <div className="flex items-center gap-1 text-primary font-medium">
                         <MapPin className="w-4 h-4" />
                         <span>{shop.distance.toFixed(1)} km</span>
@@ -278,6 +424,18 @@ const NearbyShopsMap = () => {
                       <div className="text-xs text-muted-foreground">
                         Est. travel cost: ₹{(shop.distance * 8).toFixed(2)}
                       </div>
+                      {shop.qualityScore && (
+                        <div className="flex gap-2 mt-2 text-xs">
+                          <span className="flex items-center gap-1">
+                            <Award className="w-3 h-3" />
+                            {shop.qualityScore}/10
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Leaf className="w-3 h-3" />
+                            {shop.environmentalScore}/10
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <Button 
                       size="sm" 
