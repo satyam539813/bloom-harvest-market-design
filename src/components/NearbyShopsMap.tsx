@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MapPin, Navigation, Store, Loader2, TrendingUp, Award, DollarSign, Heart, Leaf, ShoppingBag } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { MapPin, Navigation, Store, Loader2, TrendingUp, Award, DollarSign, Heart, Leaf, ShoppingBag, Search, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
@@ -44,6 +45,8 @@ const NearbyShopsMap = () => {
   const [shops, setShops] = useState<Shop[]>([]);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [isLoadingShops, setIsLoadingShops] = useState(false);
+  const [locationInput, setLocationInput] = useState('');
+  const [currentLocationName, setCurrentLocationName] = useState('');
   const [directionsDialog, setDirectionsDialog] = useState<{ open: boolean; url: string; shopName: string }>({
     open: false,
     url: '',
@@ -58,6 +61,7 @@ const NearbyShopsMap = () => {
         async (position) => {
           const coords: [number, number] = [position.coords.latitude, position.coords.longitude];
           setUserLocation(coords);
+          setCurrentLocationName('Your Current Location');
           setIsLoadingLocation(false);
           toast({
             title: "Location found",
@@ -70,22 +74,60 @@ const NearbyShopsMap = () => {
           setIsLoadingLocation(false);
           toast({
             title: "Location error",
-            description: "Could not get your location. Using default location.",
+            description: "Could not get your location. Try searching for a location instead.",
             variant: "destructive",
           });
-          // Default to a sample location
-          const defaultCoords: [number, number] = [51.5074, -0.1278]; // London
-          setUserLocation(defaultCoords);
-          discoverShops(defaultCoords).catch(console.error);
         }
       );
     } else {
       setIsLoadingLocation(false);
       toast({
         title: "Geolocation not supported",
-        description: "Your browser doesn't support geolocation.",
+        description: "Please search for a location instead.",
         variant: "destructive",
       });
+    }
+  };
+
+  const searchLocation = async () => {
+    if (!locationInput.trim()) {
+      toast({
+        title: "Enter a location",
+        description: "Please enter a city, address, or landmark.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoadingLocation(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('geocode-location', {
+        body: { location: locationInput }
+      });
+
+      if (error) throw error;
+
+      if (data?.coordinates) {
+        const coords: [number, number] = [data.coordinates.lat, data.coordinates.lng];
+        setUserLocation(coords);
+        setCurrentLocationName(data.locationName || locationInput);
+        toast({
+          title: "Location found",
+          description: `Searching near ${data.locationName || locationInput}...`,
+        });
+        await discoverShops(coords);
+      } else {
+        throw new Error('No coordinates found');
+      }
+    } catch (error) {
+      console.error('Error geocoding location:', error);
+      toast({
+        title: "Location not found",
+        description: "Could not find that location. Try being more specific.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingLocation(false);
     }
   };
 
@@ -164,28 +206,60 @@ const NearbyShopsMap = () => {
   return (
     <div className="space-y-6">
       <Card className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <Navigation className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-semibold text-foreground">Your Location</h2>
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="w-5 h-5 text-primary" />
+            <h2 className="text-xl font-semibold text-foreground">AI-Powered Location Search</h2>
           </div>
-          <Button
-            onClick={getUserLocation}
-            disabled={isLoadingLocation || isLoadingShops}
-            className="gap-2"
-          >
-            {isLoadingLocation || isLoadingShops ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                {isLoadingShops ? 'Finding shops...' : 'Getting location...'}
-              </>
-            ) : (
-              <>
-                <MapPin className="w-4 h-4" />
-                Find Nearby Shops
-              </>
-            )}
-          </Button>
+          
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Enter city, address, or landmark (e.g., 'Mumbai', 'Times Square', 'Near Eiffel Tower')"
+                value={locationInput}
+                onChange={(e) => setLocationInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && searchLocation()}
+                className="pl-10"
+                disabled={isLoadingLocation || isLoadingShops}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={searchLocation}
+                disabled={isLoadingLocation || isLoadingShops}
+                className="gap-2"
+              >
+                {isLoadingLocation || isLoadingShops ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Searching...
+                  </>
+                ) : (
+                  <>
+                    <Search className="w-4 h-4" />
+                    Search
+                  </>
+                )}
+              </Button>
+              <Button
+                onClick={getUserLocation}
+                disabled={isLoadingLocation || isLoadingShops}
+                variant="outline"
+                className="gap-2"
+              >
+                <Navigation className="w-4 h-4" />
+                Use GPS
+              </Button>
+            </div>
+          </div>
+
+          {currentLocationName && (
+            <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+              <MapPin className="w-4 h-4 text-primary" />
+              <span>Showing shops near: <strong className="text-foreground">{currentLocationName}</strong></span>
+            </div>
+          )}
         </div>
 
         {userLocation && (
