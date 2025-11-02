@@ -2,10 +2,11 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { MapPin, Navigation, Store, Loader2, TrendingUp } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MapPin, Navigation, Store, Loader2, TrendingUp, Award, DollarSign, Heart, Leaf, ShoppingBag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 
 const Map = lazy(() => import('./Map'));
 
@@ -17,6 +18,11 @@ interface Shop {
   lng: number;
   distance: number;
   description: string;
+  qualityScore?: number;
+  priceCompetitiveness?: number;
+  popularityScore?: number;
+  environmentalScore?: number;
+  varietyScore?: number;
 }
 
 
@@ -207,55 +213,203 @@ const NearbyShopsMap = () => {
           <Card className="p-6">
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-semibold text-foreground">Cost Analysis</h2>
+              <h2 className="text-xl font-semibold text-foreground">AI-Powered Shop Analysis</h2>
             </div>
-            <p className="text-sm text-muted-foreground mb-6">
-              Estimated travel costs based on distance (assuming ₹8 per km for fuel)
-            </p>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart
-                data={shops.map(shop => ({
-                  name: shop.name.length > 20 ? shop.name.substring(0, 20) + '...' : shop.name,
-                  distance: Number(shop.distance.toFixed(1)),
-                  cost: Number((shop.distance * 8).toFixed(2)),
-                  fullName: shop.name
-                }))}
-                margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="name" 
-                  angle={-45}
-                  textAnchor="end"
-                  height={100}
-                  className="text-xs fill-muted-foreground"
-                />
-                <YAxis 
-                  className="text-xs fill-muted-foreground"
-                  label={{ value: 'Cost (₹)', angle: -90, position: 'insideLeft' }}
-                />
-                <Tooltip 
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      const data = payload[0].payload;
-                      return (
-                        <div className="bg-background border border-border p-3 rounded-lg shadow-lg">
-                          <p className="font-semibold mb-1">{data.fullName}</p>
-                          <p className="text-sm text-muted-foreground">Distance: {data.distance} km</p>
-                          <p className="text-sm font-medium text-primary">Travel Cost: ₹{data.cost}</p>
-                        </div>
-                      );
+            <Tabs defaultValue="cost" className="w-full">
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="cost" className="gap-1">
+                  <DollarSign className="w-4 h-4" />
+                  Cost
+                </TabsTrigger>
+                <TabsTrigger value="quality" className="gap-1">
+                  <Award className="w-4 h-4" />
+                  Quality
+                </TabsTrigger>
+                <TabsTrigger value="environment" className="gap-1">
+                  <Leaf className="w-4 h-4" />
+                  Environment
+                </TabsTrigger>
+                <TabsTrigger value="popularity" className="gap-1">
+                  <Heart className="w-4 h-4" />
+                  Popularity
+                </TabsTrigger>
+                <TabsTrigger value="comparison" className="gap-1">
+                  <ShoppingBag className="w-4 h-4" />
+                  Compare
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="cost" className="mt-6">
+                <p className="text-sm text-muted-foreground mb-4">
+                  Travel cost (₹8/km) and price competitiveness comparison
+                </p>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={shops.map(shop => ({
+                      name: shop.name.length > 15 ? shop.name.substring(0, 15) + '...' : shop.name,
+                      travelCost: Number((shop.distance * 8).toFixed(2)),
+                      priceScore: shop.priceCompetitiveness || 0,
+                      fullName: shop.name
+                    }))}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} className="text-xs fill-muted-foreground" />
+                    <YAxis className="text-xs fill-muted-foreground" />
+                    <Tooltip content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        return (
+                          <div className="bg-background border border-border p-3 rounded-lg shadow-lg">
+                            <p className="font-semibold mb-1">{data.fullName}</p>
+                            <p className="text-sm">Travel Cost: ₹{data.travelCost}</p>
+                            <p className="text-sm">Price Score: {data.priceScore}/100</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }} />
+                    <Legend />
+                    <Bar dataKey="travelCost" fill="hsl(var(--primary))" name="Travel Cost (₹)" radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="priceScore" fill="hsl(var(--primary) / 0.6)" name="Price Score" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </TabsContent>
+
+              <TabsContent value="quality" className="mt-6">
+                <p className="text-sm text-muted-foreground mb-4">
+                  Product quality and variety ratings
+                </p>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={shops.map(shop => ({
+                      name: shop.name.length > 15 ? shop.name.substring(0, 15) + '...' : shop.name,
+                      quality: shop.qualityScore || 0,
+                      variety: shop.varietyScore || 0,
+                      fullName: shop.name
+                    }))}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} className="text-xs fill-muted-foreground" />
+                    <YAxis className="text-xs fill-muted-foreground" domain={[0, 100]} />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="quality" fill="hsl(var(--primary))" name="Quality Score" radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="variety" fill="hsl(var(--primary) / 0.6)" name="Variety Score" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </TabsContent>
+
+              <TabsContent value="environment" className="mt-6">
+                <p className="text-sm text-muted-foreground mb-4">
+                  Environmental sustainability ratings
+                </p>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={shops.map(shop => ({
+                      name: shop.name.length > 15 ? shop.name.substring(0, 15) + '...' : shop.name,
+                      score: shop.environmentalScore || 0,
+                      fullName: shop.name
+                    }))}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} className="text-xs fill-muted-foreground" />
+                    <YAxis className="text-xs fill-muted-foreground" domain={[0, 100]} />
+                    <Tooltip />
+                    <Bar dataKey="score" name="Eco Score" radius={[8, 8, 0, 0]}>
+                      {shops.map((shop, index) => {
+                        const score = shop.environmentalScore || 0;
+                        const color = score >= 80 ? 'hsl(142, 76%, 36%)' : score >= 60 ? 'hsl(47, 96%, 53%)' : 'hsl(0, 84%, 60%)';
+                        return <Cell key={`cell-${index}`} fill={color} />;
+                      })}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </TabsContent>
+
+              <TabsContent value="popularity" className="mt-6">
+                <p className="text-sm text-muted-foreground mb-4">
+                  Shop popularity and customer ratings
+                </p>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={shops.map(shop => ({
+                      name: shop.name.length > 15 ? shop.name.substring(0, 15) + '...' : shop.name,
+                      score: shop.popularityScore || 0,
+                      fullName: shop.name
+                    }))}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} className="text-xs fill-muted-foreground" />
+                    <YAxis className="text-xs fill-muted-foreground" domain={[0, 100]} />
+                    <Tooltip />
+                    <Bar dataKey="score" fill="hsl(var(--primary))" name="Popularity Score" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </TabsContent>
+
+              <TabsContent value="comparison" className="mt-6">
+                <p className="text-sm text-muted-foreground mb-4">
+                  Multi-dimensional comparison of top 5 shops
+                </p>
+                <ResponsiveContainer width="100%" height={400}>
+                  <RadarChart data={[
+                    {
+                      metric: 'Quality',
+                      ...shops.slice(0, 5).reduce((acc, shop, i) => ({
+                        ...acc,
+                        [`shop${i + 1}`]: shop.qualityScore || 0
+                      }), {})
+                    },
+                    {
+                      metric: 'Price',
+                      ...shops.slice(0, 5).reduce((acc, shop, i) => ({
+                        ...acc,
+                        [`shop${i + 1}`]: shop.priceCompetitiveness || 0
+                      }), {})
+                    },
+                    {
+                      metric: 'Popularity',
+                      ...shops.slice(0, 5).reduce((acc, shop, i) => ({
+                        ...acc,
+                        [`shop${i + 1}`]: shop.popularityScore || 0
+                      }), {})
+                    },
+                    {
+                      metric: 'Eco Score',
+                      ...shops.slice(0, 5).reduce((acc, shop, i) => ({
+                        ...acc,
+                        [`shop${i + 1}`]: shop.environmentalScore || 0
+                      }), {})
+                    },
+                    {
+                      metric: 'Variety',
+                      ...shops.slice(0, 5).reduce((acc, shop, i) => ({
+                        ...acc,
+                        [`shop${i + 1}`]: shop.varietyScore || 0
+                      }), {})
                     }
-                    return null;
-                  }}
-                />
-                <Bar dataKey="cost" radius={[8, 8, 0, 0]}>
-                  {shops.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={`hsl(var(--primary) / ${1 - (index * 0.15)})`} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+                  ]}>
+                    <PolarGrid />
+                    <PolarAngleAxis dataKey="metric" />
+                    <PolarRadiusAxis domain={[0, 100]} />
+                    {shops.slice(0, 5).map((shop, i) => (
+                      <Radar
+                        key={shop.id}
+                        name={shop.name.length > 20 ? shop.name.substring(0, 20) + '...' : shop.name}
+                        dataKey={`shop${i + 1}`}
+                        stroke={`hsl(var(--primary) / ${1 - (i * 0.15)})`}
+                        fill={`hsl(var(--primary) / ${0.3 - (i * 0.05)})`}
+                      />
+                    ))}
+                    <Legend />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </TabsContent>
+            </Tabs>
           </Card>
 
           <Card className="p-6">
@@ -269,6 +423,22 @@ const NearbyShopsMap = () => {
                   <h3 className="font-semibold text-lg mb-2">{shop.name}</h3>
                   <p className="text-sm text-muted-foreground mb-2">{shop.address}</p>
                   <p className="text-sm mb-3">{shop.description}</p>
+                  {(shop.qualityScore || shop.environmentalScore) && (
+                    <div className="flex gap-2 mb-3">
+                      {shop.qualityScore && (
+                        <div className="flex items-center gap-1 text-xs">
+                          <Award className="w-3 h-3 text-primary" />
+                          <span>Quality: {shop.qualityScore}/100</span>
+                        </div>
+                      )}
+                      {shop.environmentalScore && (
+                        <div className="flex items-center gap-1 text-xs">
+                          <Leaf className="w-3 h-3 text-green-600" />
+                          <span>Eco: {shop.environmentalScore}/100</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <div className="flex items-center justify-between">
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-1 text-primary font-medium">

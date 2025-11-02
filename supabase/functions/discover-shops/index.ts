@@ -20,10 +20,10 @@ Deno.serve(async (req) => {
 
     console.log(`Discovering shops near: ${latitude}, ${longitude}`);
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
     
-    if (!LOVABLE_API_KEY) {
-      console.error('LOVABLE_API_KEY not configured');
+    if (!OPENROUTER_API_KEY) {
+      console.error('OPENROUTER_API_KEY not configured');
       return new Response(
         JSON.stringify({ error: 'AI service not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -31,32 +31,39 @@ Deno.serve(async (req) => {
     }
 
     const prompt = `Generate a realistic list of 8-10 farm shops and organic markets near coordinates ${latitude}, ${longitude}.
-For each shop, provide:
+For each shop, provide detailed analysis including:
+- id: unique identifier
 - name: A realistic farm shop name
 - address: A plausible street address in the area
 - lat: Latitude (vary by 0.01-0.05 from ${latitude})
 - lng: Longitude (vary by 0.01-0.05 from ${longitude})
 - description: Brief description of what they sell (organic produce, dairy, meat, etc.)
+- qualityScore: Product quality rating (0-100)
+- priceCompetitiveness: How competitive the prices are (0-100, higher means better value)
+- popularityScore: Shop popularity rating (0-100)
+- environmentalScore: Environmental sustainability rating (0-100)
+- varietyScore: Product variety rating (0-100)
 
 Return ONLY a JSON array with this exact structure, no other text:
-[{"id": "1", "name": "...", "address": "...", "lat": number, "lng": number, "description": "..."}]`;
+[{"id": "1", "name": "...", "address": "...", "lat": number, "lng": number, "description": "...", "qualityScore": number, "priceCompetitiveness": number, "popularityScore": number, "environmentalScore": number, "varietyScore": number}]`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://farm-shops.lovable.app',
+        'X-Title': 'Farm Shops Finder'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.0-flash-exp:free',
         messages: [
           { 
             role: 'system', 
-            content: 'You are a helpful assistant that generates realistic farm shop data in JSON format. Always return valid JSON arrays only.' 
+            content: 'You are a helpful assistant that generates realistic farm shop data with detailed analysis scores in JSON format. Always return valid JSON arrays only.' 
           },
           { role: 'user', content: prompt }
         ],
-        temperature: 0.8,
       }),
     });
 
@@ -88,7 +95,7 @@ Return ONLY a JSON array with this exact structure, no other text:
       console.error('JSON parse error:', parseError);
       console.error('AI response was:', aiResponse);
       
-      // Fallback: generate sample shops
+      // Fallback: generate sample shops with scores
       shops = [
         {
           id: "1",
@@ -96,7 +103,12 @@ Return ONLY a JSON array with this exact structure, no other text:
           address: "123 Farm Road",
           lat: latitude + 0.02,
           lng: longitude + 0.02,
-          description: "Fresh organic vegetables and dairy products"
+          description: "Fresh organic vegetables and dairy products",
+          qualityScore: 85,
+          priceCompetitiveness: 75,
+          popularityScore: 80,
+          environmentalScore: 90,
+          varietyScore: 70
         },
         {
           id: "2",
@@ -104,7 +116,12 @@ Return ONLY a JSON array with this exact structure, no other text:
           address: "456 Market Street",
           lat: latitude - 0.03,
           lng: longitude + 0.01,
-          description: "Locally sourced organic produce and artisan goods"
+          description: "Locally sourced organic produce and artisan goods",
+          qualityScore: 78,
+          priceCompetitiveness: 82,
+          popularityScore: 75,
+          environmentalScore: 85,
+          varietyScore: 80
         }
       ];
     }
