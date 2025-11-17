@@ -206,7 +206,7 @@ const NearbyShopsMap = () => {
           <Card className="p-6">
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-semibold text-foreground">AI-Powered Shop Analysis</h2>
+              <h2 className="text-xl font-semibold text-foreground">Shop Analysis</h2>
             </div>
             <Tabs defaultValue="cost" className="w-full">
               <TabsList className="grid w-full grid-cols-5">
