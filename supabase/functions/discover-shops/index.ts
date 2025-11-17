@@ -56,7 +56,7 @@ Return ONLY a JSON array with this exact structure, no other text:
         'X-Title': 'Farm Shops Finder'
       },
       body: JSON.stringify({
-        model: 'mistralai/mixtral-8x7b-instruct',
+        model: 'google/gemini-2.0-flash-exp:free',
         messages: [
           { 
             role: 'system', 
