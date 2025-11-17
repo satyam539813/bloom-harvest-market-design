@@ -44,6 +44,7 @@ const NearbyShopsMap = () => {
   const [shops, setShops] = useState<Shop[]>([]);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [isLoadingShops, setIsLoadingShops] = useState(false);
+  const [shopsCache, setShopsCache] = useState<Record<string, { shops: Shop[], timestamp: number }>>({});
   const [directionsDialog, setDirectionsDialog] = useState<{ open: boolean; url: string; shopName: string }>({
     open: false,
     url: '',
@@ -53,10 +54,35 @@ const NearbyShopsMap = () => {
 
   const getUserLocation = () => {
     setIsLoadingLocation(true);
+    
+    // Check localStorage for cached location (valid for 5 minutes)
+    const cachedLocation = localStorage.getItem('userLocation');
+    const cachedTimestamp = localStorage.getItem('userLocationTimestamp');
+    
+    if (cachedLocation && cachedTimestamp) {
+      const age = Date.now() - parseInt(cachedTimestamp);
+      if (age < 5 * 60 * 1000) { // 5 minutes
+        const coords = JSON.parse(cachedLocation) as [number, number];
+        setUserLocation(coords);
+        setIsLoadingLocation(false);
+        toast({
+          title: "Location loaded",
+          description: "Using cached location. Finding shops...",
+        });
+        discoverShops(coords);
+        return;
+      }
+    }
+    
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const coords: [number, number] = [position.coords.latitude, position.coords.longitude];
+          
+          // Cache location
+          localStorage.setItem('userLocation', JSON.stringify(coords));
+          localStorage.setItem('userLocationTimestamp', Date.now().toString());
+          
           setUserLocation(coords);
           setIsLoadingLocation(false);
           toast({
@@ -73,7 +99,8 @@ const NearbyShopsMap = () => {
             description: "Could not get your location. Please enable location services.",
             variant: "destructive",
           });
-        }
+        },
+        { timeout: 10000, enableHighAccuracy: false } // 10 second timeout, don't wait for high accuracy
       );
     } else {
       setIsLoadingLocation(false);
@@ -99,6 +126,20 @@ const NearbyShopsMap = () => {
   };
 
   const discoverShops = async (coords: [number, number]) => {
+    // Check cache first (valid for 10 minutes)
+    const cacheKey = `${coords[0].toFixed(2)},${coords[1].toFixed(2)}`; // Round to 2 decimals for cache
+    const cached = shopsCache[cacheKey];
+    
+    if (cached && Date.now() - cached.timestamp < 10 * 60 * 1000) { // 10 minutes
+      console.log('Using cached shops data');
+      setShops(cached.shops);
+      toast({
+        title: "Shops loaded",
+        description: `Found ${cached.shops.length} nearby farm shops (cached)`,
+      });
+      return;
+    }
+    
     setIsLoadingShops(true);
     try {
       console.log('Calling discover-shops function with coords:', coords);
@@ -133,6 +174,16 @@ const NearbyShopsMap = () => {
         
         console.log('Processed shops:', shopsWithDistance);
         setShops(shopsWithDistance);
+        
+        // Cache the results
+        setShopsCache(prev => ({
+          ...prev,
+          [cacheKey]: {
+            shops: shopsWithDistance,
+            timestamp: Date.now()
+          }
+        }));
+        
         toast({
           title: "Shops discovered",
           description: `Found ${shopsWithDistance.length} nearby farm shops`,
