@@ -14,7 +14,7 @@ const NearbyShops = () => {
               <h1 className="text-4xl font-bold text-foreground">Nearby Farm Shops</h1>
             </div>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Discover local farm shops near you with AI-powered recommendations and live distance tracking
+              Discover local farm shops near you with live distance tracking
             </p>
           </div>
           <NearbyShopsMap />
