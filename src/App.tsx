@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import { FavoritesProvider } from "./contexts/FavoritesContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Index from "./pages/Index";
 import Shop from "./pages/Shop";
 import AboutUs from "./pages/AboutUs";
@@ -35,9 +36,21 @@ const App = () => (
                 <Route path="/about" element={<AboutUs />} />
                 <Route path="/contact" element={<ContactUs />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/image-analysis" element={<ImageAnalysis />} />
-                <Route path="/orders" element={<OrderHistory />} />
-                <Route path="/nearby-shops" element={<NearbyShops />} />
+                <Route path="/image-analysis" element={
+                  <ProtectedRoute>
+                    <ImageAnalysis />
+                  </ProtectedRoute>
+                } />
+                <Route path="/orders" element={
+                  <ProtectedRoute>
+                    <OrderHistory />
+                  </ProtectedRoute>
+                } />
+                <Route path="/nearby-shops" element={
+                  <ProtectedRoute>
+                    <NearbyShops />
+                  </ProtectedRoute>
+                } />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
