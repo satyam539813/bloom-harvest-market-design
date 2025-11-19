@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MapPin, Navigation, Store, Loader2, TrendingUp, Award, DollarSign, Heart, Leaf, ShoppingBag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 
 const Map = lazy(() => import('./Map'));
@@ -51,8 +52,18 @@ const NearbyShopsMap = () => {
     shopName: ''
   });
   const { toast } = useToast();
+  const { user, session } = useAuth();
 
   const getUserLocation = () => {
+    if (!user || !session) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to find nearby shops.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoadingLocation(true);
     
     // Check localStorage for cached location (valid for 5 minutes)
@@ -148,6 +159,9 @@ const NearbyShopsMap = () => {
         body: { 
           latitude: coords[0], 
           longitude: coords[1] 
+        },
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`
         }
       });
 

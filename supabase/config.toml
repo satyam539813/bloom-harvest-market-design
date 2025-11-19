@@ -45,13 +45,13 @@ backend = "postgres"
 pubsub = false
 
 [functions.analyze-image]
-verify_jwt = false
+verify_jwt = true
 
 [functions.chatbot]
-verify_jwt = false
+verify_jwt = true
 
 [functions.discover-shops]
-verify_jwt = false
+verify_jwt = true
 
 [functions.geocode-location]
-verify_jwt = false
+verify_jwt = true

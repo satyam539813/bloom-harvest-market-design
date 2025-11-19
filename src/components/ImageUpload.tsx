@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Upload, Eye, Camera, CheckCircle, Sparkles, Cpu, Image as ImageIcon } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import AnalysisChart from "./AnalysisChart";
 
 interface ImageAnalysisResult {
@@ -22,6 +23,7 @@ const ImageUpload = () => {
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const { toast } = useToast();
+  const { user, session } = useAuth();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -101,6 +103,15 @@ const ImageUpload = () => {
   }, [isAnalyzing]);
 
   const analyzeImage = async () => {
+    if (!user || !session) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to analyze images.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!selectedImage) {
       toast({
         title: "No image selected",
@@ -121,6 +132,9 @@ const ImageUpload = () => {
         body: {
           image: selectedImage,
           prompt: "Analyze this agricultural image briefly: 1) Crop type, 2) Health status, 3) Growth stage, 4) Visible issues, 5) Recommendations. Be concise."
+        },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
         }
       });
 
