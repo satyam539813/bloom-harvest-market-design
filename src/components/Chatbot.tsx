@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ChatMessage {
   id: string;
@@ -23,6 +24,7 @@ const Chatbot = () => {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { user, session } = useAuth();
 
   const botName = "FarmBot";
   const welcomeMessage = `Hey! I'm ${botName}, your personal agricultural assistant! 🌱 I'm here to help you with everything about farming, crops, and organic produce. Ask me anything!`;
@@ -51,6 +53,15 @@ const Chatbot = () => {
   const sendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
 
+    if (!user || !session) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to use the chatbot.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const userMessage: ChatMessage = {
       id: `user-${Date.now()}`,
       role: 'user',
@@ -67,6 +78,9 @@ const Chatbot = () => {
       const { data, error } = await supabase.functions.invoke('chatbot', {
         body: {
           prompt: `You are ${botName}, a friendly agricultural assistant. Answer this question about farming, crops, or agriculture: "${inputMessage.trim()}". Be helpful, informative, and conversational. If the question is not related to agriculture, politely redirect to farming topics.`
+        },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
         }
       });
 
