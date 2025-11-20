@@ -1,9 +1,12 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
 const Hero = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="relative min-h-[80vh] flex items-center bg-gradient-to-r from-farm-green-light/20 to-white pt-16">
       <div className="container mx-auto px-4 py-20">
@@ -19,10 +22,17 @@ const Hero = () => {
               Support local farmers and enjoy the freshest seasonal offerings.
             </p>
             <div className="flex flex-wrap gap-4">
-              <Button className="bg-farm-green hover:bg-farm-green-dark text-white rounded-full px-8 py-6">
+              <Button 
+                onClick={() => navigate('/shop')}
+                className="bg-farm-green hover:bg-farm-green-dark text-white rounded-full px-8 py-6"
+              >
                 Shop Now <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button variant="outline" className="border-farm-green text-farm-green hover:bg-farm-green/10 rounded-full px-8 py-6">
+              <Button 
+                onClick={() => navigate('/about-us')}
+                variant="outline" 
+                className="border-farm-green text-farm-green hover:bg-farm-green/10 rounded-full px-8 py-6"
+              >
                 Learn More
               </Button>
             </div>
