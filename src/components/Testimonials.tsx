@@ -12,7 +12,7 @@ const testimonials = [
     role: "Home Chef",
     location: "San Francisco, CA",
     rating: 5,
-    text: "FarmFresh has completely transformed my cooking! The organic vegetables are incredibly fresh, and I can taste the difference in every dish. My family loves the variety and quality.",
+    text: "agroconnect has completely transformed my cooking! The organic vegetables are incredibly fresh, and I can taste the difference in every dish. My family loves the variety and quality.",
     image: "https://images.unsplash.com/photo-1494790108755-2616b612b647?w=150&h=150&fit=crop&crop=face&auto=format",
     badge: "Verified Buyer",
     orderCount: 47,
@@ -24,7 +24,7 @@ const testimonials = [
     role: "Restaurant Owner",
     location: "Austin, TX",
     rating: 5,
-    text: "As a chef, I'm extremely picky about ingredients. FarmFresh consistently delivers restaurant-quality produce. Their farm-to-table approach aligns perfectly with our sustainability values.",
+    text: "As a chef, I'm extremely picky about ingredients. agroconnect consistently delivers restaurant-quality produce. Their farm-to-table approach aligns perfectly with our sustainability values.",
     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face&auto=format",
     badge: "Business Customer",
     orderCount: 124,
@@ -36,7 +36,7 @@ const testimonials = [
     role: "Nutritionist",
     location: "Seattle, WA",
     rating: 5,
-    text: "I recommend FarmFresh to all my clients. The nutrient density and freshness of their produce is unmatched. Plus, knowing exactly where my food comes from gives me peace of mind.",
+    text: "I recommend agroconnect to all my clients. The nutrient density and freshness of their produce is unmatched. Plus, knowing exactly where my food comes from gives me peace of mind.",
     image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face&auto=format",
     badge: "Health Professional",
     orderCount: 89,
@@ -48,7 +48,7 @@ const testimonials = [
     role: "Organic Farmer",
     location: "Portland, OR",
     rating: 5,
-    text: "Even as a farmer myself, I'm impressed with FarmFresh's quality standards. They truly support sustainable agriculture and make healthy eating accessible to everyone.",
+    text: "Even as a farmer myself, I'm impressed with agroconnect's quality standards. They truly support sustainable agriculture and make healthy eating accessible to everyone.",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face&auto=format",
     badge: "Industry Expert",
     orderCount: 76,
@@ -72,7 +72,7 @@ const testimonials = [
     role: "Food Blogger",
     location: "Nashville, TN",
     rating: 5,
-    text: "I've featured FarmFresh in multiple articles. Their commitment to quality, transparency, and supporting local farmers makes them stand out in the crowded market.",
+    text: "I've featured agroconnect in multiple articles. Their commitment to quality, transparency, and supporting local farmers makes them stand out in the crowded market.",
     image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face&auto=format",
     badge: "Influencer",
     orderCount: 203,
@@ -111,7 +111,7 @@ const Testimonials = () => {
             </span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Real stories from real customers who've experienced the FarmFresh difference
+            Real stories from real customers who've experienced the agroconnect difference
           </p>
         </div>
 
@@ -216,7 +216,7 @@ const Testimonials = () => {
                 </div>
                 <h3 className="text-3xl md:text-4xl font-bold tracking-tight">
                   Ready to Experience{" "}
-                  <span className="text-primary">FarmFresh Quality?</span>
+                  <span className="text-primary">agroconnect Quality?</span>
                 </h3>
                 <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
                   Join thousands of satisfied customers who've made the switch to fresh, 
