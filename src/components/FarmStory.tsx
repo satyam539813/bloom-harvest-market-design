@@ -1,8 +1,11 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 
 const FarmStory = () => {
+  const navigate = useNavigate();
+
   return (
     <section id="about" className="py-20">
       <div className="container mx-auto px-4">
@@ -68,7 +71,10 @@ const FarmStory = () => {
                 <span>Family Owned</span>
               </div>
             </div>
-            <Button className="bg-farm-green hover:bg-farm-green-dark text-white rounded-full px-8 py-6">
+            <Button 
+              onClick={() => navigate('/about-us')}
+              className="bg-farm-green hover:bg-farm-green-dark text-white rounded-full px-8 py-6"
+            >
               Learn More About Us
             </Button>
           </div>
