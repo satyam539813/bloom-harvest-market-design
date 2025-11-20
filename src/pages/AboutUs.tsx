@@ -20,7 +20,7 @@ const AboutUs = () => {
             <div className="space-y-6">
               <h2 className="text-3xl font-bold text-farm-green-dark">Our Story</h2>
               <p className="text-lg text-gray-700">
-                FarmFresh began as a small family farm in 2008, dedicated to growing organic produce using sustainable methods. 
+                agroconnect began as a small family farm in 2008, dedicated to growing organic produce using sustainable methods.
                 What started as a roadside farm stand has grown into a trusted source of quality produce for our community.
               </p>
               <p className="text-lg text-gray-700">

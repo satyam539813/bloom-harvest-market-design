@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <h3 className="text-xl font-bold text-white mb-4">FarmFresh</h3>
+            <h3 className="text-xl font-bold text-white mb-4">agroconnect</h3>
             <p className="mb-4 text-gray-300">
               Farm to table, sustainably grown produce delivered directly to your doorstep.
             </p>
@@ -76,7 +76,7 @@ const Footer = () => {
                 <svg className="h-6 w-6 mr-2 text-farm-accent-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                <span>info@farmfresh.com</span>
+                <span>info@agroconnect.com</span>
               </li>
               <li className="flex items-start">
                 <svg className="h-6 w-6 mr-2 text-farm-accent-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -102,7 +102,7 @@ const Footer = () => {
         
         <div className="flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400">
-            &copy; {new Date().getFullYear()} FarmFresh. All rights reserved.
+            &copy; {new Date().getFullYear()} agroconnect. All rights reserved.
           </p>
           <div className="mt-4 md:mt-0 flex items-center space-x-4">
             <img src="https://via.placeholder.com/40x25" alt="Visa" className="h-6" />

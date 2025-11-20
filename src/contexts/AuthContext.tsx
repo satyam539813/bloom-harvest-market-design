@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (event === 'SIGNED_IN') {
           toast({
             title: "Signed in successfully",
-            description: "Welcome back to FarmFresh!",
+            description: "Welcome back to agroconnect!",
           });
         }
         if (event === 'SIGNED_OUT') {

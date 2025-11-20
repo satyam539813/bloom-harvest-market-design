@@ -97,7 +97,7 @@ const ContactUs = () => {
                     </div>
                     <div>
                       <p className="font-medium">Email</p>
-                      <p className="text-gray-600">info@farmfresh.com</p>
+                      <p className="text-gray-600">info@agroconnect.com</p>
                     </div>
                   </div>
                   

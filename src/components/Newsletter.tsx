@@ -74,7 +74,7 @@ const Newsletter = () => {
               </div>
               
               <h2 className="text-3xl font-bold text-farm-green-dark">
-                Welcome to the FarmFresh Family! 🌱
+                Welcome to the agroconnect Family! 🌱
               </h2>
               
               <p className="text-lg text-gray-600 leading-relaxed">
@@ -224,7 +224,7 @@ const Newsletter = () => {
 
                 <div className="text-center">
                   <p className="text-xs text-gray-500 leading-relaxed">
-                    By subscribing, you agree to receive marketing emails from FarmFresh. 
+                    By subscribing, you agree to receive marketing emails from agroconnect.
                     You can unsubscribe at any time. View our{' '}
                     <a href="/privacy" className="text-farm-green hover:underline">
                       Privacy Policy

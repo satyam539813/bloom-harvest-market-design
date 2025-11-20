@@ -63,7 +63,7 @@ const Navbar = () => {
               </div>
               <div className="flex flex-col">
                 <span className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                  FarmFresh
+                  agroconnect
                 </span>
                 <span className="text-xs text-muted-foreground -mt-1">
                   Fresh • Organic • Local
@@ -160,7 +160,7 @@ const Navbar = () => {
                           <span className="font-bold text-lg">F</span>
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-lg font-bold text-foreground">FarmFresh</span>
+                          <span className="text-lg font-bold text-foreground">agroconnect</span>
                           <span className="text-xs text-muted-foreground">Fresh • Organic • Local</span>
                         </div>
                       </div>
